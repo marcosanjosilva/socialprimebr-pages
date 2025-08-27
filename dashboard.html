@@ -51,6 +51,14 @@
     .iconbtn{background:transparent;border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:grid;place-items:center;cursor:pointer}
     .modal-bg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:5;background:radial-gradient(600px 400px at 50% 20%, rgba(20,35,70,.6), transparent 60%), rgba(0,0,0,.35);backdrop-filter: blur(4px)}
     .modal{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid var(--border); border-radius:16px; padding:20px; width:min(520px, 92vw);}
+    /* chat ui */
+    .chatui{display:flex;flex-direction:column;height:100%}
+    .msgs{flex:1;overflow:auto;padding:14px}
+    .msg{margin:8px 0;display:flex;gap:8px}
+    .msg.user{justify-content:flex-end}
+    .bubble{max-width:80%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:rgba(110,168,255,.10)}
+    .msg.assistant .bubble{background:rgba(142,123,255,.10)}
+    .chatui form{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:linear-gradient(180deg,rgba(10,15,23,.86),rgba(10,15,23,.6))}
   </style>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
@@ -86,23 +94,26 @@
   </div>
 
   <aside id="gpt" class="sidegpt">
-    <header><strong>Painel ChatGPT</strong><a href="https://chat.openai.com" target="_blank" class="btn mini">Abrir em nova aba</a></header>
-    <iframe class="frame" src="https://chat.openai.com" referrerpolicy="no-referrer"></iframe>
+    <header><strong>Assistente</strong><span id="gptStatus" class="pill">Checando…</span></header>
+    <div class="chatui">
+      <div id="msgs" class="msgs"></div>
+      <form id="chatForm">
+        <input id="chatInput" placeholder="Pergunte algo…"/>
+        <button class="btn">Enviar</button>
+      </form>
+    </div>
   </aside>
 
   <script>
     const NETWORKS=["Instagram","Facebook","Threads","TikTok","Pinterest","YouTube","X","Google"];
     function tile(name, connected){ const st=connected?'on':'off';
-      const capName = name.toUpperCase();
       return [
         '<div class="tile" data-state="'+st+'">',
           '<div style="display:flex;align-items:center;justify-content:space-between">',
-            '<strong>'+capName+'</strong>',
+            '<strong>'+name.toUpperCase()+'</strong>',
             '<span class="badge '+st+'"><span class="dot status-dot '+st+'"></span>'+(connected?'Conectado':'Não conectado')+'</span>',
           '</div>',
-          '<div style="display:flex;gap:10px">',
-            '<button class="btn mini" disabled>Conectar</button>',
-          '</div>',
+          '<div style="display:flex;gap:10px"><button class="btn mini" disabled>Conectar</button></div>',
         '</div>'
       ].join('');
     }
@@ -114,7 +125,43 @@
       const grid = document.getElementById('grid'); grid.innerHTML = "";
       NETWORKS.forEach(function(n){ grid.insertAdjacentHTML('beforeend', tile(n,false)); });
       if(prefSideOn() && innerWidth>=1200) document.body.classList.add('has-side');
+      checkAssistant();
     }
+
+    // --- Assistente usando Edge Function ---
+    const FN_URL = "https://mmfqumjckeumidrbysnf.supabase.co/functions/v1/sp_assistant";
+    let history = [{role:'system', content:'Você é o assistente da SocialPrimeBR.'}];
+    const msgs = document.getElementById('msgs');
+    function pushMsg(role, text){
+      const el=document.createElement('div'); el.className='msg '+role; 
+      el.innerHTML='<div class="bubble">'+text.replace(/</g,'&lt;')+'</div>';
+      msgs.appendChild(el); msgs.scrollTop=msgs.scrollHeight;
+    }
+    async function checkAssistant(){
+      try{
+        const { data:{ session } } = await supabase.auth.getSession();
+        const r = await fetch(FN_URL,{ method:'OPTIONS' });
+        document.getElementById('gptStatus').textContent = r.ok ? 'Online' : 'Offline';
+      }catch(e){ document.getElementById('gptStatus').textContent='Offline'; }
+    }
+    document.getElementById('chatForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const text=(document.getElementById('chatInput').value||'').trim(); if(!text) return;
+      document.getElementById('chatInput').value=''; pushMsg('user', text);
+      try{
+        const { data:{ session } } = await supabase.auth.getSession();
+        const r = await fetch(FN_URL, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', 'Authorization': 'Bearer '+session.access_token },
+          body: JSON.stringify({ messages: history.concat([{role:'user', content:text}]) })
+        });
+        const j = await r.json();
+        const reply = ((j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || j.content || j.text || 'Sem resposta');
+        pushMsg('assistant', reply);
+        history.push({role:'user', content:text}); history.push({role:'assistant', content:reply});
+      }catch(err){ pushMsg('assistant', 'Erro ao falar com o assistente.'); }
+    });
+
     boot();
   </script>
 </body>

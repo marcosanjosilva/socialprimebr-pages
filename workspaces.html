@@ -51,6 +51,14 @@
     .iconbtn{background:transparent;border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:grid;place-items:center;cursor:pointer}
     .modal-bg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:5;background:radial-gradient(600px 400px at 50% 20%, rgba(20,35,70,.6), transparent 60%), rgba(0,0,0,.35);backdrop-filter: blur(4px)}
     .modal{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid var(--border); border-radius:16px; padding:20px; width:min(520px, 92vw);}
+    /* chat ui */
+    .chatui{display:flex;flex-direction:column;height:100%}
+    .msgs{flex:1;overflow:auto;padding:14px}
+    .msg{margin:8px 0;display:flex;gap:8px}
+    .msg.user{justify-content:flex-end}
+    .bubble{max-width:80%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:rgba(110,168,255,.10)}
+    .msg.assistant .bubble{background:rgba(142,123,255,.10)}
+    .chatui form{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:linear-gradient(180deg,rgba(10,15,23,.86),rgba(10,15,23,.6))}
   </style>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
@@ -102,6 +110,7 @@
   <script>
     document.getElementById('openNew').onclick = function(){ document.getElementById('modal').style.display='flex'; };
     document.getElementById('cancel').onclick = function(){ document.getElementById('modal').style.display='none'; };
+    document.getElementById('logout').onclick = async function(){ await supabase.auth.signOut(); location.href='login.html'; };
 
     async function load(){ const s=await requireSession(); if(!s) return;
       const res = await supabase.from('workspaces').select('id,name,created_at').order('created_at');

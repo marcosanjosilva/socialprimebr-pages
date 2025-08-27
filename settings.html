@@ -51,6 +51,14 @@
     .iconbtn{background:transparent;border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:grid;place-items:center;cursor:pointer}
     .modal-bg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:5;background:radial-gradient(600px 400px at 50% 20%, rgba(20,35,70,.6), transparent 60%), rgba(0,0,0,.35);backdrop-filter: blur(4px)}
     .modal{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid var(--border); border-radius:16px; padding:20px; width:min(520px, 92vw);}
+    /* chat ui */
+    .chatui{display:flex;flex-direction:column;height:100%}
+    .msgs{flex:1;overflow:auto;padding:14px}
+    .msg{margin:8px 0;display:flex;gap:8px}
+    .msg.user{justify-content:flex-end}
+    .bubble{max-width:80%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:rgba(110,168,255,.10)}
+    .msg.assistant .bubble{background:rgba(142,123,255,.10)}
+    .chatui form{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:linear-gradient(180deg,rgba(10,15,23,.86),rgba(10,15,23,.6))}
   </style>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
@@ -100,7 +108,10 @@
         <h3>Painel do ChatGPT</h3>
         <div class="muted">Mostra um painel lateral no Dashboard (somente Desktop). Se preferir, desative aqui.</div>
         <div class="row" style="margin-top:12px">
-          <label class="switch"><input type="checkbox" id="gptSwitch"><span class="slider"></span></label>
+          <label class="switch" style="display:inline-flex;align-items:center;gap:10px">
+            <input type="checkbox" id="gptSwitch" style="width:22px;height:22px">
+            <span>Ativar painel</span>
+          </label>
         </div>
       </div>
 
