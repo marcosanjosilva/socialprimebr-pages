@@ -1,5 +1,4 @@
-<!doctype html>
-<html><head><title>SocialPrimeBR — Dashboard</title>
+<!doctype html><html><head><title>SocialPrimeBR — Agendar</title>
   <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
   <link rel="icon" href="favicon.svg"/>
   <link rel="stylesheet" href="theme.css"/>
@@ -14,66 +13,53 @@
 <body>
   <div class="gridbg"></div>
   <header>
-    <a class="brand" href="dashboard.html" title="Início do Dashboard">
+    <a class="brand" href="dashboard.html">
       <svg viewBox="0 0 24 24" fill="none"><path d="M5 14L13 2l-2 8h8L9 22l2-8H5z" fill="url(#g)"/><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6ea8ff"/><stop offset=".7" stop-color="#8e7bff"/></linearGradient></defs></svg>
       SocialPrimeBR
     </a>
-    <div style="display:flex;gap:10px;align-items:center">
-      <span id="wsName" class="pill">Carregando perfil…</span>
-      <a href="workspaces.html" class="btn secondary">Trocar/Adicionar perfil</a>
+    <div style="display:flex;gap:10px">
+      <a href="dashboard.html" class="btn secondary">← Voltar ao Dashboard</a>
       <a href="calendar.html" class="btn secondary">Calendário</a>
-      <a href="schedule.html" class="btn secondary">Agendar</a>
       <a href="settings.html" class="btn secondary">Configurações</a>
       <a id="logout" class="btn">Sair</a>
     </div>
   </header>
 
   <div class="wrap">
-    <section id="banner" class="banner" style="display:none"></section>
-
-    <h2 style="margin:14px 0 6px">Redes Sociais</h2>
-    <div class="muted">Verifique e conecte as redes para este perfil.</div>
-    <div id="grid" class="netgrid"></div>
+    <h2 style="margin:0 0 6px">Agendar publicação</h2>
+    <div class="cards">
+      <div class="card span-6">
+        <h3>Conteúdo</h3>
+        <label>Texto</label><textarea id="caption" style="width:100%;min-height:120px;border-radius:12px;border:1px solid var(--b1);background:rgba(255,255,255,.04);color:var(--fg);padding:10px"></textarea>
+        <label>Mídia (opcional)</label><input type="file" id="media" multiple/>
+      </div>
+      <div class="card span-6">
+        <h3>Quando & onde</h3>
+        <label>Data</label><input type="date" id="date"/>
+        <label>Hora</label><input type="time" id="time"/>
+        <label>Redes</label>
+        <div class="muted">Seleção será ligada às permissões do perfil futuramente.</div>
+        <div style="margin-top:12px"><button class="btn" id="save">Agendar</button></div>
+        <div id="msg" class="muted" style="margin-top:8px"></div>
+      </div>
+      <div class="card span-12">
+        <h3>Agendamentos</h3>
+        <div class="muted">Lista aparecerá aqui quando integrarmos a tabela de agendamentos.</div>
+      </div>
+    </div>
   </div>
 
   <aside id="gpt" class="sidegpt">
-    <header><strong>Assistente</strong><a class="btn secondary" target="_blank" href="https://chatgpt.com">Abrir em nova aba</a></header>
+    <header><strong>Assistente</strong></header>
     <div class="chatui"><div id="msgs" class="msgs"></div>
       <form id="chatForm"><input id="chatInput" placeholder="Pergunte algo…"/><button class="btn">Enviar</button></form>
     </div>
   </aside>
 
   <script>
-    const NETWORKS=["Instagram","Facebook","Threads","TikTok","Pinterest","YouTube","X","Google"];
-    function tile(name, connected){ const st=connected?'on':'off';
-      return '<div class="tile" data-state="'+st+'">'
-        +'<div style="display:flex;align-items:center;justify-content:space-between">'
-        +'<strong>'+name.toUpperCase()+'</strong>'
-        +'<span class="badge '+st+'">'+(connected?'Conectado':'Não conectado')+'</span>'
-        +'</div>'
-        +'<div class="muted">Integração em preparação.</div>'
-        +'</div>';
-    }
-    document.getElementById('logout').onclick = async ()=>{ await supabase.auth.signOut(); location.href='login.html'; };
-
-    async function loadBanner(){
-      try{
-        const { data } = supabase.storage.from('assets').getPublicUrl('banner.html');
-        const url = data.publicUrl;
-        const r = await fetch(url, { cache:'no-store' });
-        if(r.ok){ const html = await r.text(); const b = document.getElementById('banner'); b.innerHTML = html; b.style.display='block'; }
-      }catch(e){ /* sem banner */ }
-    }
-
-    async function boot(){
-      const s = await requireSession(); if(!s) return;
-      const name = localStorage.getItem('sp_active_ws_name')||'';
-      document.getElementById('wsName').innerHTML='<strong>'+cap(name)+'</strong>';
-      const grid = document.getElementById('grid'); grid.innerHTML='';
-      NETWORKS.forEach(n=> grid.insertAdjacentHTML('beforeend', tile(n,false)));
-      loadBanner();
-    }
-    boot();
+    document.getElementById('logout').onclick=async()=>{ await supabase.auth.signOut(); location.href='login.html'; };
+    document.getElementById('save').onclick=()=>{ document.getElementById('msg').textContent='Protótipo: salvaremos quando criarmos a tabela de agendamentos.'; };
+    requireSession();
   </script>
 
 <script>
