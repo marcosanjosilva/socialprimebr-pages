@@ -1,8 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <title>Entrar — SocialPrimeBR</title>
-
+<!DOCTYPE html><html lang="pt-BR"><head><title>Entrar — SocialPrimeBR</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="color-scheme" content="dark light">
@@ -50,114 +46,7 @@
     small{color:#9bb0d6}
     .error{ color:#ff9aa2; } .ok{ color:#9be79b; }
   </style>
-
-</head>
-<body>
-  <canvas id="fx" aria-hidden="true"></canvas>
-  <div class="mouse-glow" aria-hidden="true"></div>
-  <div class="grid" aria-hidden="true"></div>
-
-  <main class="wrap">
-    <section class="card" role="region" aria-label="Login">
-      <a class="back" href="index.html">← Voltar</a>
-      <h1>Entrar</h1>
-      <form id="loginForm" novalidate>
-        <label for="ident">E-mail ou CPF/CNPJ</label>
-        <input id="ident" type="text" placeholder="voce@exemplo.com ou 00.000.000/0000-00" required>
-        <small id="loginIdentHint" class="error"></small>
-
-        <label for="senha">Senha</label>
-        <input id="senha" type="password" placeholder="Sua senha" required>
-        <div class="cta">
-          <button class="btn" type="submit">Entrar</button>
-          <a class="btn" href="cadastro.html" role="button">Criar conta</a>
-        </div>
-        <div style="margin-top:8px">
-          <a href="recuperar.html">Esqueceu a senha?</a>
-        </div>
-      </form>
-    </section>
-  </main>
-
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-    const supabase = createClient('https://mmfqumjckeumidrbysnf.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');
-
-    function soDigitos(v){ return (v||'').replace(/\D+/g,''); }
-    function mascaraCpfCnpj(input){
-      let v = soDigitos(input.value).slice(0,14);
-      if(v.length <= 11){
-        v = v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-      } else {
-        v = v.replace(/(\d{2}})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1/$2').replace(/(\d{4})(\d{1,2})$/, '$1-$2');
-      }
-      input.value = v;
-    }
-    function emailValido(v){ v=(v||'').replace(/\s+/g,'').toLowerCase(); return /^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v); }
-    function validaCPF(cpf){
-      cpf = soDigitos(cpf);
-      if(cpf.length !== 11 || /^([0-9])\1+$/.test(cpf)) return false;
-      let soma=0; for(let i=0;i<9;i++) soma += parseInt(cpf.charAt(i))*(10-i);
-      let d1 = 11 - (soma % 11); if(d1>9) d1=0; if(d1 != parseInt(cpf.charAt(9))) return false;
-      soma=0; for(let i=0;i<10;i++) soma += parseInt(cpf.charAt(i))*(11-i);
-      let d2 = 11 - (soma % 11); if(d2>9) d2=0; return d2 == parseInt(cpf.charAt(10));
-    }
-    function validaCNPJ(cnpj){
-      cnpj = soDigitos(cnpj);
-      if(cnpj.length !== 14 || /^([0-9])\1+$/.test(cnpj)) return false;
-      const peso1=[5,4,3,2,9,8,7,6,5,4,3,2], peso2=[6,5,4,3,2,9,8,7,6,5,4,3,2];
-      let soma=0; for(let i=0;i<12;i++) soma += parseInt(cnpj.charAt(i))*peso1[i];
-      let d1 = soma % 11; d1 = d1 < 2 ? 0 : 11 - d1; if(d1 != parseInt(cnpj.charAt(12))) return false;
-      soma=0; for(let i=0;i<13;i++) soma += parseInt(cnpj.charAt(i))*peso2[i];
-      let d2 = soma % 11; d2 = d2 < 2 ? 0 : 11 - d2; return d2 == parseInt(cnpj.charAt(13));
-    }
-    function ehCpfOuCnpjValido(v){ const d=soDigitos(v); if(d.length===11) return validaCPF(d); if(d.length===14) return validaCNPJ(d); return false; }
-
-    const ident = document.getElementById('ident');
-    const hint = document.getElementById('loginIdentHint');
-
-    ident.addEventListener('input', () => {
-      const val = ident.value;
-      if(/[A-Za-z@]/.test(val)) {
-        if(val.includes('@')){
-          const ok = emailValido(val);
-          ident.setCustomValidity(ok ? '' : 'E-mail com formato inválido.');
-          hint.textContent = ok ? '' : 'Informe um e-mail válido (ex.: nome@dominio.com).';
-        } else {
-          ident.setCustomValidity('');
-          hint.textContent = '';
-        }
-        return;
-      }
-      ident.value = soDigitos(val).slice(0,14);
-      mascaraCpfCnpj(ident);
-      ident.setCustomValidity('');
-      hint.textContent='';
-    });
-
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const password = document.getElementById('senha').value;
-      let identifier = ident.value.trim();
-      let email = null;
-
-      if(identifier.includes('@')) {
-        if(!emailValido(identifier)) { hint.textContent='Informe um e-mail válido.'; return; }
-        email = identifier.replace(/\s+/g,'').toLowerCase();
-      } else {
-        const doc = soDigitos(identifier);
-        if(!ehCpfOuCnpjValido(doc)) { hint.textContent='CPF/CNPJ inválido.'; return; }
-        const { data: rpcData, error: rpcErr } = await supabase.rpc('get_email_by_doc', { p_doc: doc });
-        if(rpcErr || !rpcData) { hint.textContent='Documento não encontrado.'; return; }
-        email = rpcData;
-      }
-
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if(error) { alert('Erro ao entrar: ' + error.message); return; }
-      location.href = 'dashboard.html';
-    });
-  </script>
-
+</head><body><canvas id="fx"></canvas><div class="mouse-glow"></div><div class="grid"></div><main class="wrap"><section class="card"><a class="back" href="index.html">← Voltar</a><h1>Entrar</h1><form id="loginForm" novalidate><label for="ident">E-mail ou CPF/CNPJ</label><input id="ident" type="text" placeholder="voce@exemplo.com ou 00.000.000/0000-00" required><small id="loginIdentHint" class="error"></small><label for="senha">Senha</label><input id="senha" type="password" placeholder="Sua senha" required><div class="cta"><button class="btn" type="submit">Entrar</button><a class="btn" href="cadastro.html" role="button">Criar conta</a></div><div style="margin-top:8px"><a href="recuperar.html">Esqueceu a senha?</a></div></form></section></main><script type="module">import{createClient}from'https://esm.sh/@supabase/supabase-js@2';const s=createClient('https://mmfqumjckeumidrbysnf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');const i=document.getElementById('ident'),h=document.getElementById('loginIdentHint');const d=v=>(v||'').replace(/\D+/g,''),eOk=v=>/^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test((v||'').trim());function vCPF(c){c=d(c);if(c.length!=11||/^([0-9])\1+$/.test(c))return!1;let s1=0;for(let i=0;i<9;i++)s1+=+c[i]*(10-i);let x=11-s1%11;x>9&&(x=0);if(x!=+c[9])return!1;s1=0;for(let i=0;i<10;i++)s1+=+c[i]*(11-i);x=11-s1%11;x>9&&(x=0);return x==+c[10]}function vCNPJ(n){n=d(n);if(n.length!=14||/^([0-9])\1+$/.test(n))return!1;const p1=[5,4,3,2,9,8,7,6,5,4,3,2],p2=[6,5,4,3,2,9,8,7,6,5,4,3,2];let s1=0;for(let i=0;i<12;i++)s1+=+n[i]*p1[i];let x=s1%11;x=x<2?0:11-x;if(x!=+n[12])return!1;s1=0;for(let i=0;i<13;i++)s1+=+n[i]*p2[i];x=s1%11;x=x<2?0:11-x;return x==+n[13]}const vDoc=v=>{const t=d(v);return 11===t.length?vCPF(t):14===t.length?vCNPJ(t):!1};i.addEventListener('input',()=>{const v=i.value;if(v.includes('@')){const ok=eOk(v);i.setCustomValidity(ok?'':'E-mail inválido');h.textContent=ok?'':'Informe um e-mail válido.';return}h.textContent='';i.setCustomValidity('')});document.getElementById('loginForm').addEventListener('submit',async e=>{e.preventDefault();const p=document.getElementById('senha').value;let id=i.value.trim(),email=null;if(id.includes('@')){if(!eOk(id)){h.textContent='Informe um e-mail válido.';return}email=id.toLowerCase()}else{const doc=d(id);if(!vDoc(doc)){h.textContent='CPF/CNPJ inválido.';return}const{data,error}=await s.rpc('get_email_by_doc',{p_doc:doc});if(error||!data){h.textContent='Documento não encontrado.';return}email=data}const{error}=await s.auth.signInWithPassword({email,password:p});if(error){alert('Erro ao entrar: '+error.message);return}location.href='dashboard.html'})</script>
   <script>
     addEventListener('DOMContentLoaded', ()=>{
       const c = document.getElementById('fx'); if(!c) return;
@@ -182,6 +71,4 @@
       start();
     });
   </script>
-
-</body>
-</html>
+</body></html>

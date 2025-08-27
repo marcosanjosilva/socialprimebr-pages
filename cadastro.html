@@ -1,8 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <title>Criar conta — SocialPrimeBR</title>
-
+<!DOCTYPE html><html lang="pt-BR"><head><title>Criar conta — SocialPrimeBR</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="color-scheme" content="dark light">
@@ -50,96 +46,7 @@
     small{color:#9bb0d6}
     .error{ color:#ff9aa2; } .ok{ color:#9be79b; }
   </style>
-
-</head>
-<body>
-  <canvas id="fx" aria-hidden="true"></canvas>
-  <div class="mouse-glow" aria-hidden="true"></div>
-  <div class="grid" aria-hidden="true"></div>
-
-  <main class="wrap">
-    <section class="card" role="region" aria-label="Cadastro">
-      <a class="back" href="index.html">← Voltar</a>
-      <h1>Criar conta</h1>
-      <form id="cadForm" novalidate>
-        <div id="status" class="muted" style="margin:6px 0 2px;"></div>
-        <div style="display:flex; gap:12px; flex-wrap:wrap">
-          <div style="flex:1">
-            <label for="nome">Nome</label>
-            <input id="nome" type="text" placeholder="Seu nome" required oninput="this.value=(this.value||'').replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'\-]/g,'').toLowerCase().replace(/\b([a-zà-öø-ÿ])/g,c=>c.toUpperCase())">
-          </div>
-          <div style="flex:1">
-            <label for="sobrenome">Sobrenome</label>
-            <input id="sobrenome" type="text" placeholder="Seu sobrenome" required oninput="this.value=(this.value||'').replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'\-]/g,'').toLowerCase().replace(/\b([a-zà-öø-ÿ])/g,c=>c.toUpperCase())">
-          </div>
-        </div>
-        <label for="email">E-mail</label>
-        <input id="email" type="email" placeholder="voce@exemplo.com" required oninput="let v=(this.value||'').replace(/\s+/g,'').toLowerCase(); if(v!==this.value) this.value=v; this.setCustomValidity(''); if(v && !/^[a-z0-9.!#$%&'*/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v)){ this.setCustomValidity('E-mail com formato inválido.'); }">
-        <label for="doc">CPF ou CNPJ</label>
-        <input id="doc" type="text" placeholder="Somente números" required oninput="this.value=this.value.replace(/\D+/g,'').slice(0,14); (function(i){let v=i.value.replace(/\D+/g,''); if(v.length<=11){v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');}else{v=v.replace(/(\d{2})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1/$2').replace(/(\d{4})(\d{1,2})$/,'$1-$2');} i.value=v;})(this)">
-        <small>Digite 11 dígitos para CPF ou 14 para CNPJ. O formato aparece automaticamente.</small>
-
-        <label for="senha">Senha</label>
-        <input id="senha" type="password" placeholder="Crie uma senha" minlength="8" required oninput="(function(i){ const ok=/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(i.value); const fb=document.getElementById('senhaFb'); fb.textContent= ok ? 'Senha forte.' : 'Mín. 8 caracteres, com letras (uma maiúscula) e números.'; fb.className= ok ? 'ok':'error'; })(this)">
-        <small id="senhaFb" class="error">Mín. 8 caracteres, com letras (uma maiúscula) e números.</small>
-
-        <div class="cta">
-          <button class="btn" type="submit">Criar conta</button>
-          <a class="btn" href="login.html">Já tenho conta</a>
-        </div>
-      </form>
-    </section>
-  </main>
-
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-    const supabase = createClient('https://mmfqumjckeumidrbysnf.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');
-
-    function soDigitos(v){ return (v||'').replace(/\D+/g,''); }
-    function emailValido(v){ v=(v||'').replace(/\s+/g,'').toLowerCase(); return /^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v); }
-    function validaCPF(cpf){ cpf=soDigitos(cpf); if(cpf.length !== 11 || /^([0-9])\1+$/.test(cpf)) return false; let s=0; for(let i=0;i<9;i++) s+=parseInt(cpf[i])*(10-i); let d1=11-(s%11); if(d1>9) d1=0; if(d1!=parseInt(cpf[9])) return false; s=0; for(let i=0;i<10;i++) s+=parseInt(cpf[i])*(11-i); let d2=11-(s%11); if(d2>9) d2=0; return d2==parseInt(cpf[10]); }
-    function validaCNPJ(cnpj){ cnpj=soDigitos(cnpj); if(cnpj.length!==14||/^([0-9])\1+$/.test(cnpj)) return false; const p1=[5,4,3,2,9,8,7,6,5,4,3,2], p2=[6,5,4,3,2,9,8,7,6,5,4,3,2]; let s=0; for(let i=0;i<12;i++) s+=parseInt(cnpj[i])*p1[i]; let d1=s%11; d1=d1<2?0:11-d1; if(d1!=parseInt(cnpj[12])) return false; s=0; for(let i=0;i<13;i++) s+=parseInt(cnpj[i])*p2[i]; let d2=s%11; d2=d2<2?0:11-d2; return d2==parseInt(cnpj[13]); }
-    function ehCpfOuCnpjValido(v){ const d=soDigitos(v); if(d.length===11) return validaCPF(d); if(d.length===14) return validaCNPJ(d); return false; }
-
-    document.getElementById('cadForm').addEventListener('submit', async (e) => {
-      e.preventDefault(); e.stopPropagation();
-      const $status = document.getElementById('status');
-      const btn = e.target.querySelector('button[type="submit"]');
-      const notify = (msg, cls='')=>{ $status.className = cls||'muted'; $status.textContent = msg; };
-      notify('Validando dados...'); btn.disabled = true;
-
-      const first_name = document.getElementById('nome').value.trim();
-      const last_name  = document.getElementById('sobrenome').value.trim();
-      const email      = (document.getElementById('email').value||'').replace(/\s+/g,'').toLowerCase();
-      const password   = document.getElementById('senha').value;
-      const docFmt     = document.getElementById('doc').value;
-      const doc        = soDigitos(docFmt);
-
-      if(!emailValido(email)) { notify('E-mail inválido.', 'error'); btn.disabled=false; return; }
-      if(!ehCpfOuCnpjValido(doc)) { notify('CPF/CNPJ inválido.', 'error'); btn.disabled=false; return; }
-      if(!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(password)) { notify('Senha não atende aos requisitos.', 'error'); btn.disabled=false; return; }
-
-      let signData, signErr;
-      try {
-        ({ data: signData, error: signErr } = await supabase.auth.signUp({
-          email, password,
-          options: { data: { first_name, last_name, doc }, emailRedirectTo: window.location.origin + '/login.html' }
-        }))
-      } catch(err) { signErr = err; }
-      if(signErr) { notify('Erro ao criar conta: '+(signErr.message||signErr), 'error'); btn.disabled=false; return; }
-
-      if(signData && signData.user) {
-        notify('Criando seu perfil...');
-        try{ await supabase.from('profiles').insert({ user_id: signData.user.id, first_name, last_name, email, doc }); }catch(_e){}
-        notify('Conta criada! Redirecionando para o login...','ok');
-        setTimeout(()=>{ location.href = 'login.html'; }, 800);
-      } else {
-        notify('Enviamos um e-mail de confirmação. Verifique sua caixa de entrada.','ok');
-      }
-      btn.disabled=false;
-    });
-  </script>
-
+</head><body><canvas id="fx"></canvas><div class="mouse-glow"></div><div class="grid"></div><main class="wrap"><section class="card"><a class="back" href="index.html">← Voltar</a><h1>Criar conta</h1><form id="cadForm" novalidate><div id="status" class="muted" style="margin:6px 0 2px;"></div><div style="display:flex; gap:12px; flex-wrap:wrap"><div style="flex:1"><label for="nome">Nome</label><input id="nome" type="text" placeholder="Seu nome" required oninput="this.value=(this.value||'').replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'\-]/g,'').toLowerCase().replace(/\b([a-zà-öø-ÿ])/g,c=>c.toUpperCase())"></div><div style="flex:1"><label for="sobrenome">Sobrenome</label><input id="sobrenome" type="text" placeholder="Seu sobrenome" required oninput="this.value=(this.value||'').replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'\-]/g,'').toLowerCase().replace(/\b([a-zà-öø-ÿ])/g,c=>c.toUpperCase())"></div></div><label for="email">E-mail</label><input id="email" type="email" placeholder="voce@exemplo.com" required oninput="let v=(this.value||'').replace(/\s+/g,'').toLowerCase(); if(v!==this.value) this.value=v; this.setCustomValidity(''); if(v && !/^[a-z0-9.!#$%&'*/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v)){ this.setCustomValidity('E-mail com formato inválido.'); }"><label for="doc">CPF ou CNPJ</label><input id="doc" type="text" placeholder="Somente números" required oninput="this.value=this.value.replace(/\D+/g,'').slice(0,14); (function(i){let v=i.value.replace(/\D+/g,''); if(v.length<=11){v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');}else{v=v.replace(/(\d{2})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1/$2').replace(/(\d{4})(\d{1,2})$/,'$1-$2');} i.value=v;})(this)"><small>Digite 11 dígitos para CPF ou 14 para CNPJ. O formato aparece automaticamente.</small><label for="senha">Senha</label><input id="senha" type="password" placeholder="Crie uma senha" minlength="8" required oninput="(function(i){ const ok=/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(i.value); const fb=document.getElementById('senhaFb'); fb.textContent= ok ? 'Senha forte.' : 'Mín. 8 caracteres, com letras (uma maiúscula) e números.'; fb.className= ok ? 'ok':'error'; })(this)"><small id="senhaFb" class="error">Mín. 8 caracteres, com letras (uma maiúscula) e números.</small><div class="cta"><button class="btn" type="submit">Criar conta</button><a class="btn" href="login.html">Já tenho conta</a></div></form></section></main><script type="module">import{createClient}from'https://esm.sh/@supabase/supabase-js@2';const s=createClient('https://mmfqumjckeumidrbysnf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');const d=v=>(v||'').replace(/\D+/g,''),eOk=v=>/^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test((v||'').trim());function vCPF(c){c=d(c);if(c.length!=11||/^([0-9])\1+$/.test(c))return!1;let s1=0;for(let i=0;i<9;i++)s1+=+c[i]*(10-i);let x=11-s1%11;x>9&&(x=0);if(x!=+c[9])return!1;s1=0;for(let i=0;i<10;i++)s1+=+c[i]*(11-i);x=11-s1%11;x>9&&(x=0);return x==+c[10]}function vCNPJ(n){n=d(n);if(n.length!=14||/^([0-9])\1+$/.test(n))return!1;const p1=[5,4,3,2,9,8,7,6,5,4,3,2],p2=[6,5,4,3,2,9,8,7,6,5,4,3,2];let s1=0;for(let i=0;i<12;i++)s1+=+n[i]*p1[i];let x=s1%11;x=x<2?0:11-x;if(x!=+n[12])return!1;s1=0;for(let i=0;i<13;i++)s1+=+n[i]*p2[i];x=s1%11;x=x<2?0:11-x;return x==+n[13]}const vDoc=v=>{const t=d(v);return 11===t.length?vCPF(t):14===t.length?vCNPJ(t):!1};document.getElementById('cadForm').addEventListener('submit',async e=>{e.preventDefault();const sEl=document.getElementById('status'),btn=e.target.querySelector('button[type="submit"]');const msg=(m,c='')=>{sEl.className=c||'muted';sEl.textContent=m};msg('Validando dados...');btn.disabled=!0;const first=document.getElementById('nome').value.trim(),last=document.getElementById('sobrenome').value.trim(),email=(document.getElementById('email').value||'').trim().toLowerCase(),pass=document.getElementById('senha').value,doc=d(document.getElementById('doc').value);if(!eOk(email))return msg('E-mail inválido.','error'),btn.disabled=!1;if(!vDoc(doc))return msg('CPF/CNPJ inválido.','error'),btn.disabled=!1;if(!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(pass))return msg('Senha não atende aos requisitos.','error'),btn.disabled=!1;let out,err;try{({data:out,error:err}=await s.auth.signUp({email,password:pass,options:{data:{first_name:first,last_name:last,doc},emailRedirectTo:location.origin+'/login.html'}}))}catch(e){err=e}if(err)return msg('Erro ao criar conta: '+(err.message||err),'error'),btn.disabled=!1;if(out&&out.user){msg('Criando seu perfil...');try{await s.from('profiles').insert({user_id:out.user.id,first_name:first,last_name:last,email,doc})}catch(_){}msg('Conta criada! Redirecionando...','ok');setTimeout(()=>location.href='login.html',800)}else msg('Enviamos um e-mail de confirmação. Confira sua caixa de entrada.','ok');btn.disabled=!1})</script>
   <script>
     addEventListener('DOMContentLoaded', ()=>{
       const c = document.getElementById('fx'); if(!c) return;
@@ -164,6 +71,4 @@
       start();
     });
   </script>
-
-</body>
-</html>
+</body></html>

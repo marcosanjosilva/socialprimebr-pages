@@ -1,8 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <title>Recuperar senha — SocialPrimeBR</title>
-
+<!DOCTYPE html><html lang="pt-BR"><head><title>Recuperar senha — SocialPrimeBR</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="color-scheme" content="dark light">
@@ -50,42 +46,7 @@
     small{color:#9bb0d6}
     .error{ color:#ff9aa2; } .ok{ color:#9be79b; }
   </style>
-
-</head>
-<body>
-  <canvas id="fx" aria-hidden="true"></canvas>
-  <div class="mouse-glow" aria-hidden="true"></div>
-  <div class="grid" aria-hidden="true"></div>
-
-  <main class="wrap">
-    <section class="card">
-      <a class="back" href="login.html">← Voltar para login</a>
-      <h1>Recuperar senha</h1>
-      <form id="recForm">
-        <label for="email">E-mail cadastrado</label>
-        <input id="email" type="email" placeholder="voce@exemplo.com" required>
-        <div>
-          <button class="btn" type="submit">Enviar link de redefinição</button>
-        </div>
-      </form>
-    </section>
-  </main>
-
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-    const supabase = createClient('https://mmfqumjckeumidrbysnf.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');
-
-    document.getElementById('recForm').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const redirectTo = window.location.origin + '/login.html';
-      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
-      if(error) { alert('Erro: ' + error.message); return; }
-      alert('Se o e-mail existir, enviaremos instruções de redefinição.');
-      location.href='login.html';
-    });
-  </script>
-
+</head><body><canvas id="fx"></canvas><div class="mouse-glow"></div><div class="grid"></div><main class="wrap"><section class="card"><a class="back" href="login.html">← Voltar para login</a><h1>Recuperar senha</h1><form id="recForm"><label for="email">E-mail cadastrado</label><input id="email" type="email" placeholder="voce@exemplo.com" required><div><button class="btn" type="submit">Enviar link de redefinição</button></div></form></section></main><script type="module">import{createClient}from'https://esm.sh/@supabase/supabase-js@2';const s=createClient('https://mmfqumjckeumidrbysnf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');document.getElementById('recForm').addEventListener('submit',async e=>{e.preventDefault();const email=document.getElementById('email').value.trim();const{error}=await s.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/login.html'});if(error){alert('Erro: '+error.message);return}alert('Se o e-mail existir, enviaremos instruções de redefinição.');location.href='login.html'})</script>
   <script>
     addEventListener('DOMContentLoaded', ()=>{
       const c = document.getElementById('fx'); if(!c) return;
@@ -110,6 +71,4 @@
       start();
     });
   </script>
-
-</body>
-</html>
+</body></html>
