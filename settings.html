@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <title>Configurações — SocialPrimeBR</title>
+  
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <style>
+    :root{ --bg:#0b0f17; --bg-2:#0f1522; --fg:#e6ecff; --muted:#9bb0d6;
+           --brand:#6ea8ff; --brand-2:#8e7bff; --border:rgba(255,255,255,.08); --grid:rgba(255,255,255,.06);}
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background: radial-gradient(1200px 800px at 80% -10%, #14223c 0%, transparent 60%),
+                  radial-gradient(1000px 700px at -10% 100%, #1e1240 0%, transparent 60%),
+                  linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+      color:var(--fg); overflow-x:hidden;}
+    .grid{position:fixed; inset:0; pointer-events:none; opacity:.35;
+      background-image:linear-gradient(var(--grid) 1px, transparent 1px),
+                       linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size:46px 46px, 46px 46px; mask-image: radial-gradient(ellipse at 50% 30%, rgba(255,255,255,.9) 0%, rgba(255,255,255,.2) 60%, transparent 100%);
+      animation:drift 30s linear infinite; z-index:0;}
+    @keyframes drift{from{background-position:0 0,0 0} to{background-position:200px 200px,200px 200px}}
+    #fx{position:fixed; inset:0; width:100vw; height:100vh; z-index:0; pointer-events:none;}
+    .mouse-glow{position:fixed; inset:0; pointer-events:none; z-index:0;
+      background: radial-gradient(240px 240px at var(--mx,50%) var(--my,50%), rgba(38,144,255,.25), transparent 70%),
+                  radial-gradient(480px 480px at calc(var(--mx,50%) + 8%) calc(var(--my,50%) + 12%), rgba(142,123,255,.18), transparent 70%);}
+    header{position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:16px;
+      padding:14px 22px; background:linear-gradient(180deg, rgba(10,15,23,.8), rgba(10,15,23,.2)); border-bottom:1px solid var(--border); backdrop-filter: blur(6px);}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800;}
+    .brand svg{width:18px; height:18px}
+    .btn{appearance:none; border:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(110,168,255,.18), rgba(110,168,255,.06)); color:#eaf2ff; padding:10px 14px; border-radius:10px;
+      font-weight:600; font-size:14px; cursor:pointer; text-decoration:none; display:inline-flex; gap:8px;}
+    .btn.secondary{ background:linear-gradient(180deg, rgba(142,123,255,.18), rgba(142,123,255,.06)); }
+    .wrap{position:relative; z-index:1; padding:26px; max-width:1100px; margin:0 auto;}
+    .muted{color:var(--muted)}
+    .topline{display:flex; align-items:center; gap:8px; justify-content:center; font-weight:700;}
+    .pill{border:1px solid var(--border); border-radius:999px; padding:8px 12px; background:rgba(255,255,255,.05);}
+    .grid-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:18px; margin-top:24px}
+    .card{border:1px solid var(--border); background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border-radius:16px; padding:20px; min-height:120px; box-shadow:0 8px 30px rgba(0,0,0,.35);}
+    .card h3{margin:0 0 8px; font-size:18px}
+    .big{display:grid; grid-template-columns: repeat(4,minmax(140px,1fr)); gap:16px}
+    .tile{border:1px solid var(--border); border-radius:14px; padding:20px; text-align:center; font-weight:800; letter-spacing:.6px;
+      background:linear-gradient(180deg, rgba(110,72,0,.45), rgba(110,72,0,.18)); color:#fff}
+    /* modal */
+    .modal-bg{position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:5}
+    .modal{width:min(520px,90vw); border:1px solid var(--border); background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border-radius:16px; padding:20px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    input, select{width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background: rgba(255,255,255,.04); color:var(--fg);}
+    label{font-weight:600}
+    .error{ color:#ff9aa2; } .ok{ color:#9be79b; }
+  </style>
+  <script type="module">
+    addEventListener('mousemove', (e)=>{ document.documentElement.style.setProperty('--mx', e.clientX+'px'); document.documentElement.style.setProperty('--my', e.clientY+'px'); });
+  </script>
+
+</head>
+<body>
+<canvas id="fx"></canvas><div class="mouse-glow"></div><div class="grid"></div>
+<header>
+  
+    <div class="brand">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6ea8ff"/><stop offset="1" stop-color="#8e7bff"/></linearGradient></defs><path d="M36 6L12 36h13l-5 22 32-38H36z" fill="url(#g)"/></svg>
+      SocialPrimeBR
+    </div>
+    
+  <a class="btn" href="dashboard.html">Voltar ao Dashboard</a>
+</header>
+
+<main class="wrap">
+  <div class="grid-cards">
+    <div class="card">
+      <h3>Alterar e-mail</h3>
+      <label for="emailNew">Novo e-mail</label>
+      <input id="emailNew" type="email" placeholder="novo@exemplo.com">
+      <label for="passEmail">Sua senha atual</label>
+      <input id="passEmail" type="password" placeholder="Senha atual">
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="btnEmail">Atualizar e-mail</button>
+        <span id="msgEmail" class="muted"></span>
+      </div>
+      <small class="muted">Será enviado um link de confirmação para o novo e-mail.</small>
+    </div>
+
+    <div class="card">
+      <h3>Alterar senha</h3>
+      <label for="passOld">Senha atual</label>
+      <input id="passOld" type="password">
+      <label for="passNew">Nova senha</label>
+      <input id="passNew" type="password" placeholder="Mín. 8, com letra maiúscula e número">
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="btnPass">Atualizar senha</button>
+        <span id="msgPass" class="muted"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Seus perfis</h3>
+      <p class="muted" id="infoW">Carregando…</p>
+      <div id="wsList" class="grid-cards"></div>
+    </div>
+  </div>
+</main>
+
+<div class="modal-bg" id="delBg">
+  <div class="modal">
+    <h3>Excluir perfil</h3>
+    <p class="error">Atenção: essa ação é permanente e não pode ser desfeita.</p>
+    <p class="muted">Digite o nome do perfil e sua senha para confirmar.</p>
+    <label for="delName">Nome do perfil</label>
+    <input id="delName">
+    <label for="delPass">Sua senha</label>
+    <input id="delPass" type="password">
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="confirmDel">Excluir</button>
+      <button class="btn secondary" id="cancelDel">Cancelar</button>
+      <span id="delMsg" class="muted"></span>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const supabase = createClient("https://mmfqumjckeumidrbysnf.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA");
+
+  const delBg = document.getElementById('delBg'); let delTarget=null;
+  const openDel = (ws)=>{ delTarget=ws; delBg.style.display='flex'; document.getElementById('delMsg').textContent=''; document.getElementById('delName').value=''; document.getElementById('delPass').value=''; }
+  const closeDel = ()=>{ delBg.style.display='none'; delTarget=null; }
+  document.getElementById('cancelDel').addEventListener('click', closeDel);
+
+  document.getElementById('confirmDel').addEventListener('click', async ()=>{
+    if(!delTarget) return;
+    const name = (document.getElementById('delName').value||'').trim();
+    const pwd = document.getElementById('delPass').value||'';
+    if(name !== delTarget.name){ document.getElementById('delMsg').textContent='Nome não confere.'; return; }
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session){ location.href='login.html'; return; }
+    // reautentica
+    const { error: authErr } = await supabase.auth.signInWithPassword({ email: session.user.email, password: pwd });
+    if(authErr){ document.getElementById('delMsg').textContent='Senha incorreta.'; return; }
+    const { error } = await supabase.from('workspaces').delete().eq('id', delTarget.id);
+    if(error){ document.getElementById('delMsg').textContent= error.message; return; }
+    // limpar ativo, se era o atual
+    if(localStorage.getItem('sp_active_ws_id')===delTarget.id){ localStorage.removeItem('sp_active_ws_id'); localStorage.removeItem('sp_active_ws_name'); }
+    closeDel(); await loadWs();
+  });
+
+  document.getElementById('btnEmail').addEventListener('click', async ()=>{
+    const newEmail=(document.getElementById('emailNew').value||'').trim().toLowerCase();
+    const pass=document.getElementById('passEmail').value;
+    const msg=document.getElementById('msgEmail');
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session){ location.href='login.html'; return; }
+    // reautentica
+    const { error: e1 } = await supabase.auth.signInWithPassword({ email: session.user.email, password: pass });
+    if(e1){ msg.textContent = 'Senha incorreta.'; return; }
+    const { error } = await supabase.auth.updateUser({ email: newEmail });
+    msg.textContent = error ? ('Erro: '+error.message) : 'Verifique o novo e-mail para confirmar a alteração.';
+  });
+
+  document.getElementById('btnPass').addEventListener('click', async ()=>{
+    const oldp=document.getElementById('passOld').value;
+    const newp=document.getElementById('passNew').value;
+    const msg=document.getElementById('msgPass');
+    if(!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).(8,)$/.test(newp)){ msg.textContent='Senha fraca.'; return; }
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session){ location.href='login.html'; return; }
+    const { error: e1 } = await supabase.auth.signInWithPassword({ email: session.user.email, password: oldp });
+    if(e1){ msg.textContent='Senha atual incorreta.'; return; }
+    const { error } = await supabase.auth.updateUser({ password: newp });
+    msg.textContent = error ? ('Erro: '+error.message) : 'Senha atualizada com sucesso.';
+  });
+
+  async function loadWs(){
+    const list=document.getElementById('wsList'); list.innerHTML='';
+    const info=document.getElementById('infoW');
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session){ location.href='login.html'; return; }
+    const { data, error } = await supabase.from('workspaces').select('id,name,created_at').order('created_at');
+    if(error){ info.textContent='Erro: '+error.message; return; }
+    info.textContent = `Você tem ${data.length}/10 perfis.`;
+    data.forEach(ws=>{
+      const el=document.createElement('div'); el.className='card';
+      el.innerHTML=`<div class="row" style="justify-content:space-between"><strong>$\{ws.name}</strong>
+        <button class="btn">Excluir</button></div>
+        <p class="muted" style="margin:6px 0 0">Criado em $\{new Date(ws.created_at).toLocaleDateString('pt-BR')}</p>`;
+      el.querySelector('.btn').addEventListener('click', ()=> openDel(ws));
+      list.appendChild(el);
+    });
+  }
+  loadWs();
+</script>
+
+  <script>
+    const c = document.getElementById('fx'); if(c){ const ctx = c.getContext('2d', {alpha:true});
+      let dpr=1,w=0,h=0,parts=[]; const cfg={count:90,maxSpeed:.32,radius:2,linkDist:120};
+      function resize(){ dpr=Math.max(1, Math.min(devicePixelRatio||1,2)); w=c.width=Math.floor(innerWidth*dpr); h=c.height=Math.floor(innerHeight*dpr); c.style.width='100vw'; c.style.height='100vh'; }
+      function rand(a,b){return a+Math.random()*(b-a)}
+      function init(){ parts=Array.from({length:cfg.count},()=>({x:rand(0,w),y:rand(0,h),vx:rand(-cfg.maxSpeed,cfg.maxSpeed),vy:rand(-cfg.maxSpeed,cfg.maxSpeed)})); }
+      function step(){ ctx.clearRect(0,0,w,h);
+        for(let i=0;i<parts.length;i++){ const p=parts[i]; p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>w) p.vx*=-1; if(p.y<0||p.y>h) p.vy*=-1;
+          for(let j=i+1;j<parts.length;j++){ const q=parts[j], dx=p.x-q.x, dy=p.y-q.y, dist=Math.hypot(dx,dy);
+            if(dist<cfg.linkDist*dpr){ const a=1-dist/(cfg.linkDist*dpr); ctx.strokeStyle='rgba(110,168,255,'+(0.25*a)+')'; ctx.lineWidth=1*dpr; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke(); }
+          }
+          ctx.fillStyle='rgba(142,123,255,.9)'; ctx.beginPath(); ctx.arc(p.x,p.y,cfg.radius*dpr,0,Math.PI*2); ctx.fill();
+        }
+        requestAnimationFrame(step);
+      }
+      addEventListener('resize', ()=>{ resize(); init(); });
+      resize(); init(); step();
+    }
+  </script>
+
+</body>
+</html>

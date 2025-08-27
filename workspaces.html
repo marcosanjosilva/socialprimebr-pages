@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <title>Perfis — SocialPrimeBR</title>
+  
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <style>
+    :root{ --bg:#0b0f17; --bg-2:#0f1522; --fg:#e6ecff; --muted:#9bb0d6;
+           --brand:#6ea8ff; --brand-2:#8e7bff; --border:rgba(255,255,255,.08); --grid:rgba(255,255,255,.06);}
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background: radial-gradient(1200px 800px at 80% -10%, #14223c 0%, transparent 60%),
+                  radial-gradient(1000px 700px at -10% 100%, #1e1240 0%, transparent 60%),
+                  linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+      color:var(--fg); overflow-x:hidden;}
+    .grid{position:fixed; inset:0; pointer-events:none; opacity:.35;
+      background-image:linear-gradient(var(--grid) 1px, transparent 1px),
+                       linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size:46px 46px, 46px 46px; mask-image: radial-gradient(ellipse at 50% 30%, rgba(255,255,255,.9) 0%, rgba(255,255,255,.2) 60%, transparent 100%);
+      animation:drift 30s linear infinite; z-index:0;}
+    @keyframes drift{from{background-position:0 0,0 0} to{background-position:200px 200px,200px 200px}}
+    #fx{position:fixed; inset:0; width:100vw; height:100vh; z-index:0; pointer-events:none;}
+    .mouse-glow{position:fixed; inset:0; pointer-events:none; z-index:0;
+      background: radial-gradient(240px 240px at var(--mx,50%) var(--my,50%), rgba(38,144,255,.25), transparent 70%),
+                  radial-gradient(480px 480px at calc(var(--mx,50%) + 8%) calc(var(--my,50%) + 12%), rgba(142,123,255,.18), transparent 70%);}
+    header{position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:16px;
+      padding:14px 22px; background:linear-gradient(180deg, rgba(10,15,23,.8), rgba(10,15,23,.2)); border-bottom:1px solid var(--border); backdrop-filter: blur(6px);}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800;}
+    .brand svg{width:18px; height:18px}
+    .btn{appearance:none; border:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(110,168,255,.18), rgba(110,168,255,.06)); color:#eaf2ff; padding:10px 14px; border-radius:10px;
+      font-weight:600; font-size:14px; cursor:pointer; text-decoration:none; display:inline-flex; gap:8px;}
+    .btn.secondary{ background:linear-gradient(180deg, rgba(142,123,255,.18), rgba(142,123,255,.06)); }
+    .wrap{position:relative; z-index:1; padding:26px; max-width:1100px; margin:0 auto;}
+    .muted{color:var(--muted)}
+    .topline{display:flex; align-items:center; gap:8px; justify-content:center; font-weight:700;}
+    .pill{border:1px solid var(--border); border-radius:999px; padding:8px 12px; background:rgba(255,255,255,.05);}
+    .grid-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:18px; margin-top:24px}
+    .card{border:1px solid var(--border); background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border-radius:16px; padding:20px; min-height:120px; box-shadow:0 8px 30px rgba(0,0,0,.35);}
+    .card h3{margin:0 0 8px; font-size:18px}
+    .big{display:grid; grid-template-columns: repeat(4,minmax(140px,1fr)); gap:16px}
+    .tile{border:1px solid var(--border); border-radius:14px; padding:20px; text-align:center; font-weight:800; letter-spacing:.6px;
+      background:linear-gradient(180deg, rgba(110,72,0,.45), rgba(110,72,0,.18)); color:#fff}
+    /* modal */
+    .modal-bg{position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:5}
+    .modal{width:min(520px,90vw); border:1px solid var(--border); background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border-radius:16px; padding:20px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    input, select{width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background: rgba(255,255,255,.04); color:var(--fg);}
+    label{font-weight:600}
+    .error{ color:#ff9aa2; } .ok{ color:#9be79b; }
+  </style>
+  <script type="module">
+    addEventListener('mousemove', (e)=>{ document.documentElement.style.setProperty('--mx', e.clientX+'px'); document.documentElement.style.setProperty('--my', e.clientY+'px'); });
+  </script>
+
+</head>
+<body>
+<canvas id="fx"></canvas><div class="mouse-glow"></div><div class="grid"></div>
+<header>
+  
+    <div class="brand">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6ea8ff"/><stop offset="1" stop-color="#8e7bff"/></linearGradient></defs><path d="M36 6L12 36h13l-5 22 32-38H36z" fill="url(#g)"/></svg>
+      SocialPrimeBR
+    </div>
+    
+  <a class="btn" href="settings.html">Configurações ⚙️</a>
+</header>
+
+<main class="wrap">
+  <div class="topline"><span class="pill">Perfis (workspaces)</span></div>
+  <p class="muted" id="countInfo">Carregando seus perfis…</p>
+
+  <div id="list" class="grid-cards" style="margin-top:10px"></div>
+
+  <div style="margin-top:22px; display:flex; gap:10px; flex-wrap:wrap">
+    <button class="btn" id="newBtn">➕ Criar novo perfil</button>
+    <a class="btn secondary" href="dashboard.html">Ir para o Dashboard</a>
+  </div>
+</main>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>Novo perfil</h3>
+    <p class="muted">Dê um nome curto e memorável. Ex.: “Loja Centro”, “Cliente XYZ”.</p>
+    <label for="wsName">Nome do perfil</label>
+    <input id="wsName" maxlength="40" placeholder="Ex.: Agência — Cliente A" />
+    <div class="row" style="margin-top:14px">
+      <button class="btn" id="saveWs">Criar</button>
+      <button class="btn secondary" id="cancelWs">Cancelar</button>
+      <span id="wsMsg" class="muted"></span>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const supabase = createClient("https://mmfqumjckeumidrbysnf.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA");
+
+  const modalBg = document.getElementById('modalBg');
+  const openModal=()=> modalBg.style.display='flex';
+  const closeModal=()=>{ modalBg.style.display='none'; document.getElementById('wsName').value=''; document.getElementById('wsMsg').textContent=''; };
+
+  document.getElementById('newBtn').addEventListener('click', openModal);
+  document.getElementById('cancelWs').addEventListener('click', closeModal);
+  document.getElementById('saveWs').addEventListener('click', async ()=>{
+    const nm=(document.getElementById('wsName').value||'').trim();
+    if(nm.length<3){ document.getElementById('wsMsg').textContent='Nome muito curto'; return; }
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session){ location.href='login.html'; return; }
+    // cria (RLS + trigger de limite no server)
+    const { data, error } = await supabase.from('workspaces').insert({ user_id: session.user.id, name: nm }).select().single();
+    if(error){ document.getElementById('wsMsg').textContent= error.message||'Erro'; return; }
+    // setar como ativo
+    localStorage.setItem('sp_active_ws_id', data.id);
+    localStorage.setItem('sp_active_ws_name', data.name);
+    closeModal();
+    await loadList();
+  });
+
+  async function loadList(){
+    const list = document.getElementById('list'); list.innerHTML='';
+    const info = document.getElementById('countInfo');
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session){ location.href='login.html'; return; }
+    const { data, error } = await supabase.from('workspaces').select('id,name,created_at').order('created_at',{ascending:true});
+    if(error){ info.textContent='Erro ao carregar: '+error.message; return; }
+    info.textContent = `Você tem ${data.length}/10 perfis.`;
+    data.forEach(ws=>{
+      const el=document.createElement('div'); el.className='card';
+      el.innerHTML=`<div class="row" style="justify-content:space-between">
+        <strong>$\{ws.name}</strong>
+        <button class="btn">Usar</button>
+      </div>
+      <p class="muted" style="margin:6px 0 0">Criado em $\{new Date(ws.created_at).toLocaleDateString('pt-BR')}</p>`;
+      el.querySelector('.btn').addEventListener('click',()=>{
+        localStorage.setItem('sp_active_ws_id', ws.id);
+        localStorage.setItem('sp_active_ws_name', ws.name);
+        location.href='dashboard.html';
+      });
+      list.appendChild(el);
+    });
+  }
+  loadList();
+</script>
+
+  <script>
+    const c = document.getElementById('fx'); if(c){ const ctx = c.getContext('2d', {alpha:true});
+      let dpr=1,w=0,h=0,parts=[]; const cfg={count:90,maxSpeed:.32,radius:2,linkDist:120};
+      function resize(){ dpr=Math.max(1, Math.min(devicePixelRatio||1,2)); w=c.width=Math.floor(innerWidth*dpr); h=c.height=Math.floor(innerHeight*dpr); c.style.width='100vw'; c.style.height='100vh'; }
+      function rand(a,b){return a+Math.random()*(b-a)}
+      function init(){ parts=Array.from({length:cfg.count},()=>({x:rand(0,w),y:rand(0,h),vx:rand(-cfg.maxSpeed,cfg.maxSpeed),vy:rand(-cfg.maxSpeed,cfg.maxSpeed)})); }
+      function step(){ ctx.clearRect(0,0,w,h);
+        for(let i=0;i<parts.length;i++){ const p=parts[i]; p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>w) p.vx*=-1; if(p.y<0||p.y>h) p.vy*=-1;
+          for(let j=i+1;j<parts.length;j++){ const q=parts[j], dx=p.x-q.x, dy=p.y-q.y, dist=Math.hypot(dx,dy);
+            if(dist<cfg.linkDist*dpr){ const a=1-dist/(cfg.linkDist*dpr); ctx.strokeStyle='rgba(110,168,255,'+(0.25*a)+')'; ctx.lineWidth=1*dpr; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke(); }
+          }
+          ctx.fillStyle='rgba(142,123,255,.9)'; ctx.beginPath(); ctx.arc(p.x,p.y,cfg.radius*dpr,0,Math.PI*2); ctx.fill();
+        }
+        requestAnimationFrame(step);
+      }
+      addEventListener('resize', ()=>{ resize(); init(); });
+      resize(); init(); step();
+    }
+  </script>
+
+</body>
+</html>
