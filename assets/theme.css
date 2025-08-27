@@ -1,0 +1,88 @@
+
+:root{
+  --bg:#0b0f1a;
+  --panel:#101624;
+  --panel-2:#0d1322;
+  --card:#141c2e;
+  --muted:#a8b3cf;
+  --text:#e6ebff;
+  --accent:#7a5cff;
+  --accent2:#6ce1ff;
+  --success:#61d095;
+  --danger:#ff6b6b;
+  --warning:#ffd166;
+  --ring: 0 0 0 2px rgba(122,92,255,.35), 0 0 40px rgba(108,225,255,.08) inset;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:radial-gradient(1200px 800px at 20% -10%, #1a2236 0%, rgba(10,14,23,0) 60%),
+             radial-gradient(900px 600px at 90% 0%, #141b2c 0%, rgba(10,14,23,0) 55%),
+             var(--bg);
+  color:var(--text); font: 15px/1.6 Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;
+  overflow-x:hidden;
+}
+a{color:var(--accent2);text-decoration:none}
+header{
+  position:sticky;top:0;z-index:50;
+  background:linear-gradient(180deg, rgba(11,15,26,.9), rgba(11,15,26,.6));
+  backdrop-filter: blur(10px);
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.nav{max-width:1100px;margin:auto;display:flex;align-items:center;gap:16px;padding:12px 20px;}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;}
+.brand svg{width:24px;height:24px;filter:drop-shadow(0 0 6px rgba(108,225,255,.6));}
+.brand .bolt{animation: bolt 2s ease-in-out infinite}
+@keyframes bolt{0%,100%{filter:drop-shadow(0 0 5px rgba(122,92,255,.7)) drop-shadow(0 0 10px rgba(108,225,255,.4));}
+50%{filter:drop-shadow(0 0 12px rgba(108,225,255,1)) drop-shadow(0 0 20px rgba(122,92,255,.8));}}
+.nav .spacer{flex:1}
+.btn{
+  background:linear-gradient(180deg, #1c2540, #161d33);
+  color:#eaf1ff;border:1px solid rgba(255,255,255,.08);
+  padding:10px 14px;border-radius:12px;cursor:pointer;
+  box-shadow:var(--ring);transition:.2s;
+}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
+.container{max-width:1100px;margin:auto;padding:32px 20px;position:relative}
+.grid{display:grid;gap:16px}
+.cards-3{grid-template-columns:repeat(3,1fr)}
+.cards-2{grid-template-columns:repeat(2,1fr)}
+.card{
+  background:linear-gradient(180deg,var(--panel),var(--panel-2));
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:16px;padding:18px 18px 16px 18px; position:relative; overflow:hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2), inset 0 0 60px rgba(122,92,255,.06);
+}
+.card h2{margin:0 0 6px 0;font-size:18px}
+.mono{color:var(--muted);font-size:13px}
+hr.sep{border:0;border-top:1px dashed rgba(255,255,255,.08);margin:14px 0}
+.input, select, textarea{
+  width:100%;padding:11px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);
+  background:#121a2b;color:var(--text);outline:none;box-shadow:var(--ring);
+}
+label{display:block;margin:10px 0 6px 2px;color:#c8d3ff;font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.1); background:rgba(122,92,255,.13); font-size:12px}
+.tile{
+  padding:16px;border-radius:14px;border:1px solid rgba(255,255,255,.06);
+  background:linear-gradient(180deg,#141c2e,#11182a); display:flex; justify-content:space-between; align-items:center;
+}
+.tile .title{font-weight:700}
+.tile .muted{font-size:12px;color:var(--muted)}
+.grid-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width: 900px){
+ .cards-3{grid-template-columns:1fr}
+ .cards-2{grid-template-columns:1fr}
+ .grid-tiles{grid-template-columns:1fr}
+}
+footer{opacity:.8;border-top:1px solid rgba(255,255,255,.06);padding:30px 20px;text-align:center}
+/* Calendar basics */
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.day{border:1px solid rgba(255,255,255,.06);border-radius:12px;min-height:95px;padding:8px;background:#121a2b}
+.day .d{font-weight:700;opacity:.9}
+.event{margin-top:6px;padding:6px 8px;border-radius:8px;background:rgba(122,92,255,.2);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{padding:10px;border-bottom:1px dashed rgba(255,255,255,.08);text-align:left;font-size:14px}
+/* Constellation canvas */
+#bg{position:fixed;inset:0;z-index:-1}

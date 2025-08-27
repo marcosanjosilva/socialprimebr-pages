@@ -1,0 +1,106 @@
+<!doctype html><html lang="pt-BR"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Configurações — SocialPrimeBR</title>
+<link rel="icon" href="img/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/theme.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/config.js"></script>
+</head><body>
+<canvas id="bg"></canvas>
+
+<header>
+  <div class="nav">
+    <div class="brand" onclick="location.href='dashboard.html'"><svg class="bolt" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 2L3 13h6l-2 9 9-13h-6l2-7z" fill="url(#g)"/>
+<defs><linearGradient id="g" x1="0" y1="0" x2="24" y2="24">
+<stop stop-color="#7a5cff"/><stop offset="1" stop-color="#6ce1ff"/></linearGradient></defs></svg><span>SocialPrimeBR</span></div>
+    <div class="spacer"></div>
+    <nav class="actions">
+      <a class="btn" href="calendar.html">Calendário</a>
+      <a class="btn" href="schedule.html">Agendar</a>
+      <a class="btn" href="workspaces.html">Trocar Perfil</a>
+      <a class="btn" href="settings.html">Configurações</a>
+      <button class="btn" id="btnLogout">Sair</button>
+    </nav>
+  </div>
+</header>
+<div class="container">
+<div class="grid cards-3">
+  <div class="card">
+    <h2>Alterar e‑mail</h2>
+    <label>Novo e‑mail</label><input class="input" id="newEmail" type="email"/>
+    <label>Sua senha atual</label><input class="input" id="curPass" type="password"/>
+    <div class="actions" style="margin-top:10px"><button class="btn" id="btnEmail">Atualizar e‑mail</button><a class="btn" href="dashboard.html">← Voltar</a></div>
+    <div class="mono" id="msg1"></div>
+  </div>
+  <div class="card">
+    <h2>Alterar senha</h2>
+    <label>Senha atual</label><input class="input" id="oldPass" type="password"/>
+    <label>Nova senha</label><input class="input" id="newPass" type="password"/>
+    <div class="actions" style="margin-top:10px"><button class="btn" id="btnPass">Atualizar senha</button></div>
+    <div class="mono" id="msg2"></div>
+  </div>
+  <div class="card">
+    <h2>Seus perfis</h2>
+    <div id="myws" class="grid cards-2"></div>
+  </div>
+</div>
+<script>
+const supabase = window.supabase.createClient(window.SP_URL, window.SP_ANON);
+function msg1(t){document.getElementById('msg1').textContent=t}
+function msg2(t){document.getElementById('msg2').textContent=t}
+document.getElementById('btnEmail').onclick= async ()=>{
+  const email = document.getElementById('newEmail').value.trim();
+  const pass = document.getElementById('curPass').value;
+  if(!email||!pass) return msg1('Preencha e‑mail e senha atual.');
+  // re-login silencioso para confirmar senha
+  const { data: { user }, error: e1 } = await supabase.auth.signInWithPassword({ email: (await supabase.auth.getUser()).data.user.email, password: pass });
+  if(e1) return msg1('Senha inválida.');
+  const { error } = await supabase.auth.updateUser({ email });
+  if(error) return msg1('Erro: '+error.message);
+  msg1('Se necessário enviaremos um link de confirmação.');
+};
+document.getElementById('btnPass').onclick= async ()=>{
+  const oldp = document.getElementById('oldPass').value;
+  const newp = document.getElementById('newPass').value;
+  if(!oldp||!newp) return msg2('Preencha as senhas.');
+  const { data: { user } } = await supabase.auth.getUser();
+  const { error: e1 } = await supabase.auth.signInWithPassword({ email:user.email, password:oldp });
+  if(e1) return msg2('Senha atual incorreta.');
+  const { error } = await supabase.auth.updateUser({ password:newp });
+  if(error) return msg2('Erro: '+error.message);
+  msg2('Senha atualizada.');
+};
+(async ()=>{
+  const list=document.getElementById('myws'); const { data } = await supabase.from('workspaces').select('id,name,created_at').order('created_at');
+  list.innerHTML=''; (data||[]).forEach(ws=>{ const d=document.createElement('div'); d.className='tile'; d.innerHTML=`<div><div class="title">${ws.name}</div><div class="muted">Criado em ${new Date(ws.created_at).toLocaleDateString('pt-BR')}</div></div><button class="btn">Usar</button>`; d.querySelector('button').onclick=()=>{ localStorage.setItem('sp_active_ws_id', ws.id);localStorage.setItem('sp_active_ws_name', ws.name); location.href='dashboard.html'; }; list.appendChild(d) });
+})();
+</script>
+</div>
+<footer>© 2025 SocialPrimeBR — Todos os direitos reservados.</footer>
+<script src="assets/background.js"></script>
+<script>
+const supabase = window.supabase.createClient(window.SP_URL, window.SP_ANON);
+
+// Protect pages that need auth
+(async()=>{
+  const needAuth = !/index\.html|termos|politica|login\.html|cadastro\.html|recuperar\.html/.test(location.pathname);
+  const { data: { session } } = await supabase.auth.getSession();
+  if(needAuth && !session){ location.href='login.html'; }
+})();
+
+// Sair
+document.getElementById('btnLogout')?.addEventListener('click', async ()=>{
+  try{
+    await supabase.auth.signOut();
+  }finally{
+    localStorage.clear();
+    location.href='login.html';
+  }
+});
+
+</script>
+</body></html>

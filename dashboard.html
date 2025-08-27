@@ -1,0 +1,99 @@
+<!doctype html><html lang="pt-BR"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Dashboard — SocialPrimeBR</title>
+<link rel="icon" href="img/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/theme.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/config.js"></script>
+</head><body>
+<canvas id="bg"></canvas>
+
+<header>
+  <div class="nav">
+    <div class="brand" onclick="location.href='dashboard.html'"><svg class="bolt" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 2L3 13h6l-2 9 9-13h-6l2-7z" fill="url(#g)"/>
+<defs><linearGradient id="g" x1="0" y1="0" x2="24" y2="24">
+<stop stop-color="#7a5cff"/><stop offset="1" stop-color="#6ce1ff"/></linearGradient></defs></svg><span>SocialPrimeBR</span></div>
+    <div class="spacer"></div>
+    <nav class="actions">
+      <a class="btn" href="calendar.html">Calendário</a>
+      <a class="btn" href="schedule.html">Agendar</a>
+      <a class="btn" href="workspaces.html">Trocar Perfil</a>
+      <a class="btn" href="settings.html">Configurações</a>
+      <button class="btn" id="btnLogout">Sair</button>
+    </nav>
+  </div>
+</header>
+<div class="container">
+<div class="grid cards-3">
+  <div class="card">
+    <h2>Perfil</h2>
+    <div class="mono">Ativo: <span id="wsName">Carregando…</span></div>
+    <hr class="sep"/>
+    <div class="actions"><a class="btn" href="workspaces.html">Trocar perfil</a></div>
+  </div>
+  <a class="card" href="calendar.html" style="display:block">
+    <h2>Calendário</h2><div class="mono">Visualize e gerencie seus agendamentos.</div>
+  </a>
+  <a class="card" href="schedule.html" style="display:block">
+    <h2>Agendar</h2><div class="mono">Crie publicações para várias datas e redes.</div>
+  </a>
+</div>
+
+<div class="card">
+  <h2>Avisos & Atualizações</h2>
+  <div id="banner" class="mono">Carregando…</div>
+</div>
+
+<h2 style="margin-top:22px">Redes Sociais</h2>
+<div class="grid-tiles">
+  <div class="tile"><div><div class="title">Instagram</div><div class="muted">Não conectado</div></div><button class="btn">Conectar</button></div>
+  <div class="tile"><div><div class="title">Facebook</div><div class="muted">Não conectado</div></div><button class="btn">Conectar</button></div>
+  <div class="tile"><div><div class="title">Threads</div><div class="muted">Não conectado</div></div><button class="btn">Conectar</button></div>
+  <div class="tile"><div><div class="title">TikTok</div><div class="muted">Não conectado</div></div><button class="btn">Conectar</button></div>
+  <div class="tile"><div><div class="title">Pinterest</div><div class="muted">Não conectado</div></div><button class="btn">Conectar</button></div>
+  <div class="tile"><div><div class="title">YouTube</div><div class="muted">Não conectado</div></div><button class="btn">Conectar</button></div>
+  <div class="tile"><div><div class="title">X</div><div class="muted">Não conectado</div></div><button class="btn">Conectar</button></div>
+  <div class="tile"><div><div class="title">Google</div><div class="muted">Não conectado</div></div><button class="btn">Conectar</button></div>
+</div>
+
+<script>
+const supabase = window.supabase.createClient(window.SP_URL, window.SP_ANON);
+(async()=>{
+  const name = localStorage.getItem('sp_active_ws_name') || '—';
+  document.getElementById('wsName').textContent=name;
+  // carrega banner externo se existir
+  try{
+    const resp = await fetch('assets/banner.html', {cache:'no-store'});
+    document.getElementById('banner').innerHTML = resp.ok ? await resp.text() : 'Bem‑vindo ao SocialPrimeBR!';
+  }catch{ document.getElementById('banner').textContent = 'Bem‑vindo ao SocialPrimeBR!'; }
+})();
+</script>
+</div>
+<footer>© 2025 SocialPrimeBR — Todos os direitos reservados.</footer>
+<script src="assets/background.js"></script>
+<script>
+const supabase = window.supabase.createClient(window.SP_URL, window.SP_ANON);
+
+// Protect pages that need auth
+(async()=>{
+  const needAuth = !/index\.html|termos|politica|login\.html|cadastro\.html|recuperar\.html/.test(location.pathname);
+  const { data: { session } } = await supabase.auth.getSession();
+  if(needAuth && !session){ location.href='login.html'; }
+})();
+
+// Sair
+document.getElementById('btnLogout')?.addEventListener('click', async ()=>{
+  try{
+    await supabase.auth.signOut();
+  }finally{
+    localStorage.clear();
+    location.href='login.html';
+  }
+});
+
+</script>
+</body></html>
