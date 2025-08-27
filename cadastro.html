@@ -1,74 +1,40 @@
-<!DOCTYPE html><html lang="pt-BR"><head><title>Criar conta — SocialPrimeBR</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="color-scheme" content="dark light">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <style>
-    :root{ --bg:#0b0f17; --bg-2:#0f1522; --fg:#e6ecff; --muted:#9bb0d6;
-           --brand:#6ea8ff; --brand-2:#8e7bff; --border:rgba(255,255,255,.08); --grid:rgba(255,255,255,.06);}
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      background: radial-gradient(1200px 800px at 80% -10%, #14223c 0%, transparent 60%),
-                  radial-gradient(1000px 700px at -10% 100%, #1e1240 0%, transparent 60%),
-                  linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
-      color:var(--fg); overflow-x:hidden;}
-    .grid{position:fixed; inset:0; pointer-events:none; opacity:.35;
-      background-image:linear-gradient(var(--grid) 1px, transparent 1px),
-                       linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-      background-size:46px 46px, 46px 46px; mask-image: radial-gradient(ellipse at 50% 30%, rgba(255,255,255,.9) 0%, rgba(255,255,255,.2) 60%, transparent 100%);
-      animation:drift 30s linear infinite; z-index:0;}
-    @keyframes drift{from{background-position:0 0,0 0} to{background-position:200px 200px,200px 200px}}
-    #fx{position:fixed; inset:0; width:100vw; height:100vh; z-index:0; pointer-events:none;}
-    .mouse-glow{position:fixed; inset:0; pointer-events:none; z-index:0;
-      background: radial-gradient(240px 240px at var(--mx,50%) var(--my,50%), rgba(38,144,255,.25), transparent 70%),
-                  radial-gradient(480px 480px at calc(var(--mx,50%) + 8%) calc(var(--my,50%) + 12%), rgba(142,123,255,.18), transparent 70%);}
-    .wrap{position:relative; z-index:1; min-height:100%; display:grid; place-items:center; padding:40px 18px;}
-    .card{width:min(960px,95vw); border:1px solid var(--border); background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-      backdrop-filter: blur(8px); border-radius:20px; padding:32px; box-shadow:0 10px 40px rgba(0,0,0,.45); margin:40px auto;}
-    .back{display:inline-block; margin-bottom:10px; text-decoration:none; color:#cfe0ff; border:1px solid var(--border); padding:10px 14px; border-radius:10px; background:rgba(110,168,255,.12)}
-    h1{font-size:clamp(32px,5vw,56px); margin:6px 0 12px}
-    p, li{line-height:1.7; font-size:16px; opacity:.92}
-    .muted{color:var(--muted)}
-    .badge{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px; background:rgba(110,168,255,.12);
-      border:1px solid rgba(110,168,255,.25); color:#cfe0ff; font-weight:600; font-size:.9rem;}
-    .cta{display:flex; flex-wrap:wrap; gap:12px; margin-top:18px}
-    .btn{appearance:none; border:1px solid var(--border);
-      background:linear-gradient(180deg, rgba(110,168,255,.18), rgba(110,168,255,.06)); color:#eaf2ff; padding:12px 16px; border-radius:12px;
-      font-weight:600; font-size:15px; cursor:pointer; transition:transform .08s ease, border-color .2s ease; text-decoration:none; display:inline-flex; gap:10px;}
-    .btn:hover{ transform: translateY(-1px); border-color: rgba(110,168,255,.5) }
-    .btn.secondary{ background:linear-gradient(180deg, rgba(142,123,255,.18), rgba(142,123,255,.06)); }
-    .links{margin-top:20px} .links a{color:#cfe0ff; text-decoration:none; margin-right:16px}
-    footer{margin-top:22px; color:#8ea3c6; font-size:14px}
-    .highlight{background:linear-gradient(90deg, var(--brand), var(--brand-2)); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:800; position:relative;}
-    .highlight::after{content:''; position:absolute; left:0; right:0; bottom:-2px; height:2px; background:linear-gradient(90deg, rgba(110,168,255,.7), rgba(142,123,255,.7)); filter:blur(1px); animation:sweep 2.4s ease-in-out infinite;}
-    @keyframes sweep{0%{transform:translateX(-10%);opacity:.6}50%{transform:translateX(10%);opacity:1}100%{transform:translateX(-10%);opacity:.6}}
-    form{display:grid; gap:14px; margin-top:12px} label{font-weight:600} input, textarea{width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background: rgba(255,255,255,.04); color:var(--fg);}
-    small{color:#9bb0d6}
-    .error{ color:#ff9aa2; } .ok{ color:#9be79b; }
-  </style>
-</head><body><canvas id="fx"></canvas><div class="mouse-glow"></div><div class="grid"></div><main class="wrap"><section class="card"><a class="back" href="index.html">← Voltar</a><h1>Criar conta</h1><form id="cadForm" novalidate><div id="status" class="muted" style="margin:6px 0 2px;"></div><div style="display:flex; gap:12px; flex-wrap:wrap"><div style="flex:1"><label for="nome">Nome</label><input id="nome" type="text" placeholder="Seu nome" required oninput="this.value=(this.value||'').replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'\-]/g,'').toLowerCase().replace(/\b([a-zà-öø-ÿ])/g,c=>c.toUpperCase())"></div><div style="flex:1"><label for="sobrenome">Sobrenome</label><input id="sobrenome" type="text" placeholder="Seu sobrenome" required oninput="this.value=(this.value||'').replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'\-]/g,'').toLowerCase().replace(/\b([a-zà-öø-ÿ])/g,c=>c.toUpperCase())"></div></div><label for="email">E-mail</label><input id="email" type="email" placeholder="voce@exemplo.com" required oninput="let v=(this.value||'').replace(/\s+/g,'').toLowerCase(); if(v!==this.value) this.value=v; this.setCustomValidity(''); if(v && !/^[a-z0-9.!#$%&'*/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v)){ this.setCustomValidity('E-mail com formato inválido.'); }"><label for="doc">CPF ou CNPJ</label><input id="doc" type="text" placeholder="Somente números" required oninput="this.value=this.value.replace(/\D+/g,'').slice(0,14); (function(i){let v=i.value.replace(/\D+/g,''); if(v.length<=11){v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');}else{v=v.replace(/(\d{2})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1/$2').replace(/(\d{4})(\d{1,2})$/,'$1-$2');} i.value=v;})(this)"><small>Digite 11 dígitos para CPF ou 14 para CNPJ. O formato aparece automaticamente.</small><label for="senha">Senha</label><input id="senha" type="password" placeholder="Crie uma senha" minlength="8" required oninput="(function(i){ const ok=/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(i.value); const fb=document.getElementById('senhaFb'); fb.textContent= ok ? 'Senha forte.' : 'Mín. 8 caracteres, com letras (uma maiúscula) e números.'; fb.className= ok ? 'ok':'error'; })(this)"><small id="senhaFb" class="error">Mín. 8 caracteres, com letras (uma maiúscula) e números.</small><div class="cta"><button class="btn" type="submit">Criar conta</button><a class="btn" href="login.html">Já tenho conta</a></div></form></section></main><script type="module">import{createClient}from'https://esm.sh/@supabase/supabase-js@2';const s=createClient('https://mmfqumjckeumidrbysnf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');const d=v=>(v||'').replace(/\D+/g,''),eOk=v=>/^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test((v||'').trim());function vCPF(c){c=d(c);if(c.length!=11||/^([0-9])\1+$/.test(c))return!1;let s1=0;for(let i=0;i<9;i++)s1+=+c[i]*(10-i);let x=11-s1%11;x>9&&(x=0);if(x!=+c[9])return!1;s1=0;for(let i=0;i<10;i++)s1+=+c[i]*(11-i);x=11-s1%11;x>9&&(x=0);return x==+c[10]}function vCNPJ(n){n=d(n);if(n.length!=14||/^([0-9])\1+$/.test(n))return!1;const p1=[5,4,3,2,9,8,7,6,5,4,3,2],p2=[6,5,4,3,2,9,8,7,6,5,4,3,2];let s1=0;for(let i=0;i<12;i++)s1+=+n[i]*p1[i];let x=s1%11;x=x<2?0:11-x;if(x!=+n[12])return!1;s1=0;for(let i=0;i<13;i++)s1+=+n[i]*p2[i];x=s1%11;x=x<2?0:11-x;return x==+n[13]}const vDoc=v=>{const t=d(v);return 11===t.length?vCPF(t):14===t.length?vCNPJ(t):!1};document.getElementById('cadForm').addEventListener('submit',async e=>{e.preventDefault();const sEl=document.getElementById('status'),btn=e.target.querySelector('button[type="submit"]');const msg=(m,c='')=>{sEl.className=c||'muted';sEl.textContent=m};msg('Validando dados...');btn.disabled=!0;const first=document.getElementById('nome').value.trim(),last=document.getElementById('sobrenome').value.trim(),email=(document.getElementById('email').value||'').trim().toLowerCase(),pass=document.getElementById('senha').value,doc=d(document.getElementById('doc').value);if(!eOk(email))return msg('E-mail inválido.','error'),btn.disabled=!1;if(!vDoc(doc))return msg('CPF/CNPJ inválido.','error'),btn.disabled=!1;if(!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(pass))return msg('Senha não atende aos requisitos.','error'),btn.disabled=!1;let out,err;try{({data:out,error:err}=await s.auth.signUp({email,password:pass,options:{data:{first_name:first,last_name:last,doc},emailRedirectTo:location.origin+'/login.html'}}))}catch(e){err=e}if(err)return msg('Erro ao criar conta: '+(err.message||err),'error'),btn.disabled=!1;if(out&&out.user){msg('Criando seu perfil...');try{await s.from('profiles').insert({user_id:out.user.id,first_name:first,last_name:last,email,doc})}catch(_){}msg('Conta criada! Redirecionando...','ok');setTimeout(()=>location.href='login.html',800)}else msg('Enviamos um e-mail de confirmação. Confira sua caixa de entrada.','ok');btn.disabled=!1})</script>
-  <script>
-    addEventListener('DOMContentLoaded', ()=>{
-      const c = document.getElementById('fx'); if(!c) return;
-      const ctx = c.getContext('2d', {alpha:true});
-      let dpr=1,w=0,h=0,parts=[]; let animId=0;
-      const cfg={count:90,maxSpeed:.32,radius:2,linkDist:120};
-      function resize(){ dpr=Math.max(1, Math.min(devicePixelRatio||1,2)); w=c.width=Math.floor(innerWidth*dpr); h=c.height=Math.floor(innerHeight*dpr); c.style.width='100vw'; c.style.height='100vh'; }
-      function rand(a,b){return a+Math.random()*(b-a)}
-      function init(){ parts=Array.from({length:cfg.count},()=>({x:rand(0,w),y:rand(0,h),vx:rand(-cfg.maxSpeed,cfg.maxSpeed),vy:rand(-cfg.maxSpeed,cfg.maxSpeed)})); }
-      function step(){ ctx.clearRect(0,0,w,h);
-        for(let i=0;i<parts.length;i++){ const p=parts[i]; p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>w) p.vx*=-1; if(p.y<0||p.y>h) p.vy*=-1;
-          for(let j=i+1;j<parts.length;j++){ const q=parts[j], dx=p.x-q.x, dy=p.y-q.y, dist=Math.hypot(dx,dy);
-            if(dist<cfg.linkDist*dpr){ const a=1-dist/(cfg.linkDist*dpr); ctx.strokeStyle='rgba(110,168,255,'+(0.25*a)+')'; ctx.lineWidth=1*dpr; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke(); }
-          }
-          ctx.fillStyle='rgba(142,123,255,.9)'; ctx.beginPath(); ctx.arc(p.x,p.y,cfg.radius*dpr,0,Math.PI*2); ctx.fill();
-        }
-        animId=requestAnimationFrame(step);
-      }
-      function start(){ cancelAnimationFrame(animId); resize(); init(); step(); }
-      addEventListener('resize', start); addEventListener('scroll', ()=>{ if(!animId) start(); });
-      addEventListener('mousemove', (e)=>{ document.documentElement.style.setProperty('--mx', e.clientX+'px'); document.documentElement.style.setProperty('--my', e.clientY+'px'); });
-      start();
-    });
-  </script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Criar conta - SocialPrimeBR</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
+  <link rel="stylesheet" href="theme.css" />
+</head>
+<body>
+<canvas id="bg"></canvas>
+<header class="topbar">
+  <a class="brand" href="dashboard.html">
+    <span class="bolt"></span><span>SocialPrimeBR</span>
+  </a>
+  <nav class="nav">
+    <a href="calendar.html" class="pill">Calendário</a>
+    <a href="schedule.html" class="pill">Agendar</a>
+    <a href="workspaces.html" class="pill">Trocar Perfil</a>
+    <a href="settings.html" class="pill">Configurações</a>
+    <a href="login.html" class="pill ghost">Sair</a>
+  </nav>
+</header>
+<main class="container">
+
+<section class="grid cols-2">
+  <div class="card" style="grid-column:1/-1">
+    <h1>Criar conta</h1>
+    <div class="row"><input class="tile grow" placeholder="Nome" /><input class="tile grow" placeholder="Sobrenome" /></div>
+    <div class="row" style="margin-top:10px"><input class="tile grow" placeholder="E-mail" /><input class="tile" placeholder="CPF/CNPJ" /></div>
+    <div class="row" style="margin-top:10px"><input class="tile grow" placeholder="Senha" type="password" /></div>
+    <div class="row" style="margin-top:10px"><a class="btn" href="login.html">Criar conta</a></div>
+  </div>
+</section>
+
+</main>
+
+<script src="background.js"></script>
+<script src="app.js"></script>
 </body></html>

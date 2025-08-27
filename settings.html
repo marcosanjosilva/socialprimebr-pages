@@ -1,52 +1,65 @@
-<!doctype html><html lang="pt-BR"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Configurações — SocialPrimeBR</title>
-<link rel="stylesheet" href="theme.css">
-<script src="background.js" defer></script>
-</head><body>
-
-<header class="header">
-  <a class="brand" href="dashboard.html"><span class="bolt"></span> <strong>SocialPrimeBR</strong></a>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configurações - SocialPrimeBR</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
+  <link rel="stylesheet" href="theme.css" />
+</head>
+<body>
+<canvas id="bg"></canvas>
+<header class="topbar">
+  <a class="brand" href="dashboard.html">
+    <span class="bolt"></span><span>SocialPrimeBR</span>
+  </a>
   <nav class="nav">
-    <a class="btn ghost" href="calendar.html">Calendário</a>
-    <a class="btn ghost" href="schedule.html">Agendar</a>
-    <a class="btn ghost" href="workspaces.html">Trocar/Adicionar perfil</a>
-    <a class="btn ghost" href="settings.html">Configurações</a>
-    <a class="btn" href="login.html">Sair</a>
+    <a href="calendar.html" class="pill">Calendário</a>
+    <a href="schedule.html" class="pill">Agendar</a>
+    <a href="workspaces.html" class="pill">Trocar Perfil</a>
+    <a href="settings.html" class="pill">Configurações</a>
+    <a href="login.html" class="pill ghost">Sair</a>
   </nav>
 </header>
+<main class="container">
 
-<main class="grid cols-3">
-  <section class="card">
-    <div class="badge">Alterar e-mail</div>
-    <input class="input" placeholder="novo@exemplo.com">
-    <input class="input" placeholder="Sua senha atual" type="password" style="margin-top:8px">
-    <button class="btn" style="margin-top:8px">Atualizar e-mail</button>
-    <div class="hint" style="margin-top:8px">Será enviado um link de confirmação para o novo e-mail.</div>
-    <a class="btn ghost" href="dashboard.html" style="margin-top:12px">← Voltar ao Dashboard</a>
-  </section>
+<section class="grid cols-3">
+  <div class="card">
+    <div class="head"><span class="badge">Alterar e-mail</span></div>
+    <input class="tile" placeholder="novo-email@exemplo.com" />
+    <input class="tile" placeholder="Sua senha atual" type="password" />
+    <div class="row" style="margin-top:10px"><button class="btn">Atualizar e-mail</button></div>
+    <div class="muted" style="margin-top:6px">Será enviado um link de confirmação para o novo e-mail.</div>
+  </div>
+  <div class="card">
+    <div class="head"><span class="badge">Alterar senha</span></div>
+    <input class="tile" placeholder="Senha atual" type="password" />
+    <input class="tile" placeholder="Nova senha" type="password" />
+    <div class="row" style="margin-top:10px"><button class="btn">Atualizar senha</button></div>
+  </div>
+  <div class="card">
+    <div class="head"><span class="badge">Seus perfis</span></div>
+    <div id="settingsWs" class="list"><div class="row">Carregando...</div></div>
+  </div>
+</section>
 
-  <section class="card">
-    <div class="badge">Alterar senha</div>
-    <input class="input" placeholder="Senha atual" type="password">
-    <input class="input" placeholder="Nova senha (mín. 8, com letra maiúscula)" type="password" style="margin-top:8px">
-    <button class="btn" style="margin-top:8px">Atualizar senha</button>
-  </section>
+<section class="row" style="margin-top:14px">
+  <a href="dashboard.html" class="pill">← Voltar ao Dashboard</a>
+</section>
 
-  <section class="card">
-    <div class="badge">Seus perfis</div>
-    <div class="tile">
-      <strong>Sherife</strong>
-      <button class="btn ghost" style="float:right" onclick="del()">🗑️</button>
-      <div class="hint">Criado em 27/08/2025</div>
-    </div>
-  </section>
-</main>
 <script>
-function del(){
-  const p=prompt('Para excluir, digite sua senha:');
-  if(!p) return;
-  if(confirm('Tem certeza? Esta ação é permanente.')) alert('Mock: perfil excluído (implementar chamada Supabase).');
-}
+  (function(){
+    const box = document.getElementById('settingsWs');
+    const arr = JSON.parse(localStorage.getItem('sp_ws')||'[]');
+    box.innerHTML = arr.map(w=>`<div class='row row-ai'>
+      <div class='grow'><b>${w.name}</b> <span class='muted'>${new Date(w.created_at).toLocaleDateString('pt-BR')}</span></div>
+      <button class='btn sm' onclick="useWorkspace('${w.id}','${w.name}')">Usar</button>
+    </div>`).join('') || '<div class="row">Nenhum perfil.</div>';
+  })();
 </script>
+
+</main>
+
+<script src="background.js"></script>
+<script src="app.js"></script>
 </body></html>

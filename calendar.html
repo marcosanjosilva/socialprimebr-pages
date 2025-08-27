@@ -1,107 +1,63 @@
-<!doctype html><html lang="pt-BR"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Calendário — SocialPrimeBR</title>
-<link rel="stylesheet" href="theme.css">
-<script src="background.js" defer></script>
-</head><body>
-
-<header class="header">
-  <a class="brand" href="dashboard.html"><span class="bolt"></span> <strong>SocialPrimeBR</strong></a>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calendário - SocialPrimeBR</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
+  <link rel="stylesheet" href="theme.css" />
+</head>
+<body>
+<canvas id="bg"></canvas>
+<header class="topbar">
+  <a class="brand" href="dashboard.html">
+    <span class="bolt"></span><span>SocialPrimeBR</span>
+  </a>
   <nav class="nav">
-    <a class="btn ghost" href="calendar.html">Calendário</a>
-    <a class="btn ghost" href="schedule.html">Agendar</a>
-    <a class="btn ghost" href="workspaces.html">Trocar/Adicionar perfil</a>
-    <a class="btn ghost" href="settings.html">Configurações</a>
-    <a class="btn" href="login.html">Sair</a>
+    <a href="calendar.html" class="pill">Calendário</a>
+    <a href="schedule.html" class="pill">Agendar</a>
+    <a href="workspaces.html" class="pill">Trocar Perfil</a>
+    <a href="settings.html" class="pill">Configurações</a>
+    <a href="login.html" class="pill ghost">Sair</a>
   </nav>
 </header>
+<main class="container">
 
-<main>
-  <section class="card calendar">
-    <div class="head">
-      <button class="btn" id="prev">◀</button>
-      <div><span class="badge" id="monthLabel">Carregando…</span></div>
-      <button class="btn" id="next">▶</button>
-    </div>
-    <div class="grid" id="weekdays">
-      <div class="hint">Dom</div><div class="hint">Seg</div><div class="hint">Ter</div>
-      <div class="hint">Qua</div><div class="hint">Qui</div><div class="hint">Sex</div><div class="hint">Sáb</div>
-    </div>
-    <div class="grid" id="days"></div>
-  </section>
+<section class="card">
+  <div class="row row-ai head">
+    <button id="prevM" class="pill">◀</button>
+    <div id="calMonth" class="badge"></div>
+    <button id="nextM" class="pill">▶</button>
+  </div>
+  <div id="calGrid" class="grid" style="grid-template-columns:repeat(7,1fr);gap:10px"></div>
+</section>
 
-  <section class="card" style="margin-top:16px">
-    <div class="badge">Agendamentos do mês</div>
-    <div id="list" class="grid"></div>
-  </section>
+<section class="card" style="margin-top:16px">
+  <div class="head"><span class="badge">Agendamentos do mês</span></div>
+  <div id="monthList" class="list"></div>
+</section>
+
 </main>
 
-<script>
-const monthLabel=document.getElementById('monthLabel');
-const daysEl=document.getElementById('days');
-const listEl=document.getElementById('list');
-let base=new Date(); base.setDate(1);
-
-function sampleData(y,m){
-  return [
-    {date:new Date(y,m,3), title:'Reels - Produto X', status:'Agendado'},
-    {date:new Date(y,m,3), title:'Story - Bastidores', status:'Agendado'},
-    {date:new Date(y,m,3), title:'Feed - Promoção', status:'Agendado'},
-    {date:new Date(y,m,12), title:'YouTube Shorts', status:'Agendado'},
-    {date:new Date(y,m,20), title:'TikTok teaser', status:'Agendado'},
-    {date:new Date(y,m,28), title:'Post Blog', status:'Agendado'},
-  ];
-}
-
-function render(){
-  const y=base.getFullYear(), m=base.getMonth();
-  monthLabel.textContent = base.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
-  const firstDow=(new Date(y,m,1).getDay()+7)%7;
-  const days= new Date(y,m+1,0).getDate();
-  const data=sampleData(y,m);
-  daysEl.innerHTML=''; listEl.innerHTML='';
-
-  for(let i=0;i<firstDow;i++) daysEl.appendChild(document.createElement('div'));
-  for(let d=1; d<=days; d++){ 
-    const box=document.createElement('div'); box.className='day';
-    box.innerHTML=`<div class="num">${d}</div>`;
-    const ev=data.filter(e=>e.date.getDate()===d);
-    ev.slice(0,3).forEach(e=>{
-      const p=document.createElement('div'); p.className='event'; p.textContent=e.title; box.appendChild(p);
-    });
-    if(ev.length>3){ 
-      const more=document.createElement('div'); more.className='hint'; more.textContent='… mostrar mais';
-      more.style.cursor='pointer'; more.onclick=()=>alert(ev.map(e=>e.title).join('\n')); box.appendChild(more);
-    }
-    daysEl.appendChild(box);
-  }
-
-  data.forEach(e=>{ 
-    const item=document.createElement('div'); item.className='tile';
-    item.innerHTML=`<strong>${e.date.toLocaleDateString('pt-BR')}</strong> — ${e.title} <span class="badge">${e.status}</span>`; 
-    listEl.appendChild(item);
-  });
-}
-document.getElementById('prev').onclick=()=>{base.setMonth(base.getMonth()-1);render();}
-document.getElementById('next').onclick=()=>{base.setMonth(base.getMonth()+1);render();}
-render();
-</script>
-
-
-<aside id="assistant" aria-label="Assistente (desktop)">
-  <header>
+<aside id="assistant" class="assistant">
+  <div class="assistant-head">
     <strong>Assistente</strong>
-    <a class="btn ghost" href="https://chatgpt.com" target="_blank" rel="noopener">Abrir em nova aba</a>
-  </header>
-  <iframe src="about:blank" referrerpolicy="no-referrer"></iframe>
-  <div class="fallback">Alguns navegadores bloqueiam o ChatGPT em iframes. Use “Abrir em nova aba”.</div>
+    <div class="spacer"></div>
+    <button id="assistantPop" class="btn sm">Abrir em nova aba</button>
+  </div>
+  <div class="assistant-body">
+    <p>Alguns navegadores bloqueiam ChatGPT em iframes. Use o botão acima para abrir o Chat em nova aba,
+    ou configure a URL de API do seu assistente no <code>localStorage.assistant_url</code>.</p>
+    <div class="assistant-chat">
+      <div class="row row-ai">
+        <input id="assistantInput" placeholder="Pergunte algo..." />
+        <button id="assistantSend" class="btn">Enviar</button>
+      </div>
+      <div id="assistantLog" class="log"></div>
+    </div>
+  </div>
 </aside>
-<script>
-  const setSide=()=>document.body.classList.toggle('has-side', innerWidth>=1200);
-  setSide(); addEventListener('resize', setSide);
-  document.querySelector('#assistant iframe').srcdoc =
-    `<style>body{margin:0;color:#cbd5ff;background:transparent;font:14px/1.4 system-ui}</style>
-     <div style="padding:14px">Use o botão acima para abrir o Chat em nova aba.</div>`;
-</script>
 
+<script src="background.js"></script>
+<script src="app.js"></script>
 </body></html>

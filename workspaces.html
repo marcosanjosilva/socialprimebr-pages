@@ -1,49 +1,42 @@
-<!doctype html><html lang="pt-BR"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Perfis — SocialPrimeBR</title>
-<link rel="stylesheet" href="theme.css">
-<script src="background.js" defer></script>
-</head><body>
-
-<header class="header">
-  <a class="brand" href="dashboard.html"><span class="bolt"></span> <strong>SocialPrimeBR</strong></a>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Perfis - SocialPrimeBR</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
+  <link rel="stylesheet" href="theme.css" />
+</head>
+<body>
+<canvas id="bg"></canvas>
+<header class="topbar">
+  <a class="brand" href="dashboard.html">
+    <span class="bolt"></span><span>SocialPrimeBR</span>
+  </a>
   <nav class="nav">
-    <a class="btn ghost" href="calendar.html">Calendário</a>
-    <a class="btn ghost" href="schedule.html">Agendar</a>
-    <a class="btn ghost" href="workspaces.html">Trocar/Adicionar perfil</a>
-    <a class="btn ghost" href="settings.html">Configurações</a>
-    <a class="btn" href="login.html">Sair</a>
+    <a href="calendar.html" class="pill">Calendário</a>
+    <a href="schedule.html" class="pill">Agendar</a>
+    <a href="workspaces.html" class="pill">Trocar Perfil</a>
+    <a href="settings.html" class="pill">Configurações</a>
+    <a href="login.html" class="pill ghost">Sair</a>
   </nav>
 </header>
+<main class="container">
 
-<main>
-  <section class="card">
-    <div class="badge">Perfis (workspaces)</div>
-    <div class="grid cols-2" id="list"></div>
-    <hr style="border-color:var(--border);margin:14px 0">
-    <div class="badge">Novo perfil</div>
-    <div class="grid cols-2">
-      <input id="name" class="input" placeholder="Ex.: Agência — Cliente A">
-      <button class="btn" onclick="add()">Criar</button>
-    </div>
-  </section>
+<section class="card">
+  <div class="head"><span class="badge">Perfis (workspaces)</span></div>
+  <div id="wsList"></div>
+</section>
+
+<section class="card" style="margin-top:12px">
+  <div class="row row-ai">
+    <input id="wsNew" class="grow tile" placeholder="Ex.: Agência — Cliente A" />
+    <button id="wsAdd" class="btn">Criar</button>
+  </div>
+</section>
+
 </main>
-<script>
-const list=document.getElementById('list');
-const data=[{id:1,name:'Sherife',created_at:new Date()}];
-function render(){
-  list.innerHTML='';
-  data.forEach(ws=>{
-    const card=document.createElement('div'); card.className='tile';
-    card.innerHTML=`<strong>${ws.name}</strong> <button class='btn' style='float:right' onclick='useWS(${ws.id})'>Usar</button><div class="hint">Criado em ${ws.created_at.toLocaleDateString('pt-BR')}</div>`;
-    list.appendChild(card);
-  });
-}
-function add(){
-  const n=document.getElementById('name').value.trim(); if(!n) return alert('Informe um nome.');
-  data.push({id:Date.now(), name:n, created_at:new Date()}); render(); document.getElementById('name').value='';
-}
-function useWS(id){ alert('Mock: usar perfil '+id); }
-render();
-</script>
+
+<script src="background.js"></script>
+<script src="app.js"></script>
 </body></html>

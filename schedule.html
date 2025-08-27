@@ -1,150 +1,73 @@
-<!doctype html><html lang="pt-BR"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agendar — SocialPrimeBR</title>
-<link rel="stylesheet" href="theme.css">
-<script src="background.js" defer></script>
-</head><body>
-
-<header class="header">
-  <a class="brand" href="dashboard.html"><span class="bolt"></span> <strong>SocialPrimeBR</strong></a>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agendar - SocialPrimeBR</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
+  <link rel="stylesheet" href="theme.css" />
+</head>
+<body>
+<canvas id="bg"></canvas>
+<header class="topbar">
+  <a class="brand" href="dashboard.html">
+    <span class="bolt"></span><span>SocialPrimeBR</span>
+  </a>
   <nav class="nav">
-    <a class="btn ghost" href="calendar.html">Calendário</a>
-    <a class="btn ghost" href="schedule.html">Agendar</a>
-    <a class="btn ghost" href="workspaces.html">Trocar/Adicionar perfil</a>
-    <a class="btn ghost" href="settings.html">Configurações</a>
-    <a class="btn" href="login.html">Sair</a>
+    <a href="calendar.html" class="pill">Calendário</a>
+    <a href="schedule.html" class="pill">Agendar</a>
+    <a href="workspaces.html" class="pill">Trocar Perfil</a>
+    <a href="settings.html" class="pill">Configurações</a>
+    <a href="login.html" class="pill ghost">Sair</a>
   </nav>
 </header>
+<main class="container">
 
-<main class="grid cols-2">
-  <section class="card">
-    <div class="badge">Canais</div>
-    <div class="chips" id="channels"></div>
-    <div class="hint" id="compatHint" style="margin-top:8px">Selecione a mídia para validarmos compatibilidade.</div>
-    <hr style="border-color:var(--border);margin:14px 0">
-    <div class="grid cols-2">
-      <div>
-        <div class="badge">Mídia</div>
-        <input type="file" id="media" class="input" accept="image/*,video/*">
-        <div class="hint">Não misturar foto e vídeo no mesmo agendamento.</div>
-      </div>
-      <div>
-        <div class="badge">Legenda</div>
-        <textarea id="caption" class="input" rows="5" placeholder="Legenda (habilitada se todos os canais suportarem)"></textarea>
-        <div class="hint" id="capCount">0/0</div>
-      </div>
-    </div>
-    <div style="margin-top:12px" class="grid cols-2">
-      <div>
-        <div class="badge">Collab (Instagram)</div>
-        <input id="collab" class="input" placeholder="@perfil">
-      </div>
-      <div>
-        <div class="badge">Menções (Instagram)</div>
-        <input id="mentions" class="input" placeholder="@um,@dois">
-      </div>
-    </div>
-  </section>
+<section class="card">
+  <div class="head"><span class="badge">Canais</span></div>
+  <div id="channels" class="chips"></div>
+</section>
 
-  <section class="card">
-    <div class="badge">Datas</div>
-    <div id="dates"></div>
-    <button class="btn" id="addDate" style="margin-top:8px">+ Adicionar data</button>
-    <hr style="border-color:var(--border);margin:14px 0">
-    <button class="btn brand" id="submit">Agendar publicação</button>
-  </section>
+<section class="grid cols-2" style="margin-top:12px">
+  <div class="card">
+    <div class="head"><span class="badge">Mídia</span></div>
+    <input id="media" type="file" multiple class="tile" />
+    <div class="muted" style="margin-top:6px">Selecionaremos formatos compatíveis com os canais escolhidos.</div>
+  </div>
+  <div class="card">
+    <div class="head"><span class="badge">Legenda</span></div>
+    <textarea id="legend" rows="6" class="tile" placeholder="Escreva aqui..."></textarea>
+    <div id="legendHint" class="muted" style="margin-top:6px">Legenda desativada: selecione canais que aceitam texto.</div>
+  </div>
+</section>
+
+<section class="card" style="margin-top:12px">
+  <div class="head"><span class="badge">Datas</span></div>
+  <div id="dates" class="list"></div>
+  <div class="row" style="margin-top:10px"><button id="addDate" class="btn sm" type="button">Adicionar data</button></div>
+</section>
+
 </main>
 
-<script>
-const CHANNELS=[
-  {key:'ig_feed', label:'Instagram Feed', type:'image', caption:true,  capMax:2200},
-  {key:'ig_reels',label:'Instagram Reels',type:'video', caption:true,  capMax:2200},
-  {key:'ig_story',label:'Instagram Story',type:'both', caption:false, capMax:0},
-  {key:'fb_feed', label:'Facebook',      type:'both', caption:true,  capMax:63206},
-  {key:'threads', label:'Threads',       type:'both', caption:true,  capMax:500},
-  {key:'pinterest',label:'Pinterest',    type:'image',caption:true,  capMax:500},
-  {key:'tiktok',  label:'TikTok',        type:'video',caption:true,  capMax:2200},
-  {key:'google',  label:'Google',        type:'both', caption:false, capMax:0},
-  {key:'yt',      label:'YouTube',       type:'video',caption:true,  capMax:5000},
-  {key:'yt_shorts',label:'YouTube Shorts',type:'video',caption:true, capMax:150},
-  {key:'x',       label:'X',             type:'both', caption:true,  capMax:280}
-];
-const state={sel:new Set(), mediaType:null, capMax:0}
-const elCh=document.getElementById('channels');
-const cap=document.getElementById('caption');
-const capCount=document.getElementById('capCount');
-const compat=document.getElementById('compatHint');
-
-CHANNELS.forEach(c=>{
-  const b=document.createElement('button'); b.className='chip'; b.textContent=c.label;
-  b.onclick=()=>toggle(c,b); elCh.appendChild(b);
-});
-function toggle(c,b){
-  if(state.sel.has(c.key)){ state.sel.delete(c.key); b.classList.remove('active'); }
-  else{
-    if(state.mediaType && c.type!=='both' && c.type!==state.mediaType){
-      return alert(`“${c.label}” requer ${c.type.toUpperCase()}. Troque a mídia ou selecione canais compatíveis.`);
-    }
-    state.sel.add(c.key); b.classList.add('active');
-  }
-  applyCaptionRules();
-}
-document.getElementById('media').onchange=(e)=>{
-  const f=e.target.files?.[0]; if(!f) return;
-  state.mediaType = f.type.startsWith('video') ? 'video' : 'image';
-  [...state.sel].forEach(k=>{
-    const c=CHANNELS.find(x=>x.key===k);
-    if(c.type!=='both' && c.type!==state.mediaType){
-      state.sel.delete(k);
-      [...elCh.children].find(x=>x.textContent===c.label).classList.remove('active');
-    }
-  });
-  compat.textContent = state.mediaType==='video'
-   ? 'Mídia: vídeo — ex.: Reels, Shorts, TikTok (Feed com foto será removido).'
-   : 'Mídia: imagem — ex.: Feed, Pinterest (Reels/Shorts serão removidos).';
-  applyCaptionRules();
-};
-function applyCaptionRules(){
-  const sel = [...state.sel].map(k=>CHANNELS.find(c=>c.key===k));
-  const allCaption = sel.length>0 && sel.every(c=>c.caption);
-  const max = sel.length? Math.min(...sel.map(c=>c.capMax)) : 0;
-  state.capMax=max; cap.disabled=!allCaption; cap.placeholder= allCaption ? 'Escreva sua legenda' : 'Legenda não suportada para os canais selecionados';
-  capCount.textContent = `${cap.value.length}/${max}`;
-}
-cap.addEventListener('input',()=>capCount.textContent=`${cap.value.length}/${state.capMax}`);
-
-const dates=document.getElementById('dates'); const add=document.getElementById('addDate');
-const addRow=(v='')=>{
-  const r=document.createElement('div'); r.className='grid cols-2';
-  r.innerHTML=`<input class="input" type="datetime-local" value="${v}"><button class="btn ghost">Remover</button>`;
-  r.querySelector('button').onclick=()=>r.remove(); dates.appendChild(r);
-};
-add.onclick=()=>addRow(); addRow();
-
-document.getElementById('submit').onclick=()=>{
-  if(!state.sel.size) return alert('Selecione pelo menos um canal.');
-  if(!document.getElementById('media').files?.length) return alert('Selecione um arquivo de mídia.');
-  const d=[...dates.querySelectorAll('input')].map(i=>i.value).filter(Boolean);
-  if(!d.length) return alert('Adicione ao menos uma data.');
-  alert(`OK! (mock)\nCanais: ${[...state.sel].join(', ')}\nDatas: ${d.length}\nLegenda: ${cap.disabled?'(desativada)':cap.value.length+' caracteres'}`);
-};
-</script>
-
-
-<aside id="assistant" aria-label="Assistente (desktop)">
-  <header>
+<aside id="assistant" class="assistant">
+  <div class="assistant-head">
     <strong>Assistente</strong>
-    <a class="btn ghost" href="https://chatgpt.com" target="_blank" rel="noopener">Abrir em nova aba</a>
-  </header>
-  <iframe src="about:blank" referrerpolicy="no-referrer"></iframe>
-  <div class="fallback">Alguns navegadores bloqueiam o ChatGPT em iframes. Use “Abrir em nova aba”.</div>
+    <div class="spacer"></div>
+    <button id="assistantPop" class="btn sm">Abrir em nova aba</button>
+  </div>
+  <div class="assistant-body">
+    <p>Alguns navegadores bloqueiam ChatGPT em iframes. Use o botão acima para abrir o Chat em nova aba,
+    ou configure a URL de API do seu assistente no <code>localStorage.assistant_url</code>.</p>
+    <div class="assistant-chat">
+      <div class="row row-ai">
+        <input id="assistantInput" placeholder="Pergunte algo..." />
+        <button id="assistantSend" class="btn">Enviar</button>
+      </div>
+      <div id="assistantLog" class="log"></div>
+    </div>
+  </div>
 </aside>
-<script>
-  const setSide=()=>document.body.classList.toggle('has-side', innerWidth>=1200);
-  setSide(); addEventListener('resize', setSide);
-  document.querySelector('#assistant iframe').srcdoc =
-    `<style>body{margin:0;color:#cbd5ff;background:transparent;font:14px/1.4 system-ui}</style>
-     <div style="padding:14px">Use o botão acima para abrir o Chat em nova aba.</div>`;
-</script>
 
+<script src="background.js"></script>
+<script src="app.js"></script>
 </body></html>
