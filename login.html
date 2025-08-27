@@ -48,8 +48,7 @@
     @keyframes sweep{0%{transform:translateX(-10%);opacity:.6}50%{transform:translateX(10%);opacity:1}100%{transform:translateX(-10%);opacity:.6}}
     form{display:grid; gap:14px; margin-top:12px} label{font-weight:600} input, textarea{width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background: rgba(255,255,255,.04); color:var(--fg);}
     small{color:#9bb0d6}
-    .error{ color:#ff9aa2; }
-    .ok{ color:#9be79b; }
+    .error{ color:#ff9aa2; } .ok{ color:#9be79b; }
   </style>
 
 </head>
@@ -62,7 +61,7 @@
     <section class="card" role="region" aria-label="Login">
       <a class="back" href="index.html">← Voltar</a>
       <h1>Entrar</h1>
-      <form id="loginForm">
+      <form id="loginForm" novalidate>
         <label for="ident">E-mail ou CPF/CNPJ</label>
         <input id="ident" type="text" placeholder="voce@exemplo.com ou 00.000.000/0000-00" required>
         <small id="loginIdentHint" class="error"></small>
@@ -90,11 +89,11 @@
       if(v.length <= 11){
         v = v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
       } else {
-        v = v.replace(/(\d{2})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1/$2').replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+        v = v.replace(/(\d{2}})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1/$2').replace(/(\d{4})(\d{1,2})$/, '$1-$2');
       }
       input.value = v;
     }
-    function emailValido(v){ v=(v||'').replace(/\s+/g,'').toLowerCase(); return /^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v); }~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v); }
+    function emailValido(v){ v=(v||'').replace(/\s+/g,'').toLowerCase(); return /^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v); }
     function validaCPF(cpf){
       cpf = soDigitos(cpf);
       if(cpf.length !== 11 || /^([0-9])\1+$/.test(cpf)) return false;
@@ -112,12 +111,7 @@
       soma=0; for(let i=0;i<13;i++) soma += parseInt(cnpj.charAt(i))*peso2[i];
       let d2 = soma % 11; d2 = d2 < 2 ? 0 : 11 - d2; return d2 == parseInt(cnpj.charAt(13));
     }
-    function ehCpfOuCnpjValido(v){
-      const d = soDigitos(v);
-      if(d.length===11) return validaCPF(d);
-      if(d.length===14) return validaCNPJ(d);
-      return false;
-    }
+    function ehCpfOuCnpjValido(v){ const d=soDigitos(v); if(d.length===11) return validaCPF(d); if(d.length===14) return validaCNPJ(d); return false; }
 
     const ident = document.getElementById('ident');
     const hint = document.getElementById('loginIdentHint');
@@ -149,7 +143,7 @@
 
       if(identifier.includes('@')) {
         if(!emailValido(identifier)) { hint.textContent='Informe um e-mail válido.'; return; }
-        email = identifier;
+        email = identifier.replace(/\s+/g,'').toLowerCase();
       } else {
         const doc = soDigitos(identifier);
         if(!ehCpfOuCnpjValido(doc)) { hint.textContent='CPF/CNPJ inválido.'; return; }
@@ -158,7 +152,7 @@
         email = rpcData;
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if(error) { alert('Erro ao entrar: ' + error.message); return; }
       location.href = 'dashboard.html';
     });

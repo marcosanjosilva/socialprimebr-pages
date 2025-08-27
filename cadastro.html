@@ -48,8 +48,7 @@
     @keyframes sweep{0%{transform:translateX(-10%);opacity:.6}50%{transform:translateX(10%);opacity:1}100%{transform:translateX(-10%);opacity:.6}}
     form{display:grid; gap:14px; margin-top:12px} label{font-weight:600} input, textarea{width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background: rgba(255,255,255,.04); color:var(--fg);}
     small{color:#9bb0d6}
-    .error{ color:#ff9aa2; }
-    .ok{ color:#9be79b; }
+    .error{ color:#ff9aa2; } .ok{ color:#9be79b; }
   </style>
 
 </head>
@@ -62,7 +61,8 @@
     <section class="card" role="region" aria-label="Cadastro">
       <a class="back" href="index.html">← Voltar</a>
       <h1>Criar conta</h1>
-      <form id="cadForm">
+      <form id="cadForm" novalidate>
+        <div id="status" class="muted" style="margin:6px 0 2px;"></div>
         <div style="display:flex; gap:12px; flex-wrap:wrap">
           <div style="flex:1">
             <label for="nome">Nome</label>
@@ -74,17 +74,13 @@
           </div>
         </div>
         <label for="email">E-mail</label>
-        <input id="email" type="email" placeholder="voce@exemplo.com" required oninput="let v=(this.value||'').replace(/\s+/g,'').toLowerCase(); if(v!==this.value) this.value=v; this.setCustomValidity(''); if(v && !/^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v)){ this.setCustomValidity('E-mail com formato inválido.'); }">
+        <input id="email" type="email" placeholder="voce@exemplo.com" required oninput="let v=(this.value||'').replace(/\s+/g,'').toLowerCase(); if(v!==this.value) this.value=v; this.setCustomValidity(''); if(v && !/^[a-z0-9.!#$%&'*/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v)){ this.setCustomValidity('E-mail com formato inválido.'); }">
         <label for="doc">CPF ou CNPJ</label>
         <input id="doc" type="text" placeholder="Somente números" required oninput="this.value=this.value.replace(/\D+/g,'').slice(0,14); (function(i){let v=i.value.replace(/\D+/g,''); if(v.length<=11){v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');}else{v=v.replace(/(\d{2})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1/$2').replace(/(\d{4})(\d{1,2})$/,'$1-$2');} i.value=v;})(this)">
         <small>Digite 11 dígitos para CPF ou 14 para CNPJ. O formato aparece automaticamente.</small>
 
         <label for="senha">Senha</label>
-        <input id="senha" type="password" placeholder="Crie uma senha" minlength="8" required oninput="(function(i){
-          const ok=/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(i.value);
-          const fb=document.getElementById('senhaFb'); fb.textContent= ok ? 'Senha forte.' : 'Mín. 8 caracteres, com letras (uma maiúscula) e números.';
-          fb.className= ok ? 'ok':'error';
-        })(this)">
+        <input id="senha" type="password" placeholder="Crie uma senha" minlength="8" required oninput="(function(i){ const ok=/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(i.value); const fb=document.getElementById('senhaFb'); fb.textContent= ok ? 'Senha forte.' : 'Mín. 8 caracteres, com letras (uma maiúscula) e números.'; fb.className= ok ? 'ok':'error'; })(this)">
         <small id="senhaFb" class="error">Mín. 8 caracteres, com letras (uma maiúscula) e números.</small>
 
         <div class="cta">
@@ -100,54 +96,47 @@
     const supabase = createClient('https://mmfqumjckeumidrbysnf.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');
 
     function soDigitos(v){ return (v||'').replace(/\D+/g,''); }
-    function emailValido(v){ v=(v||'').replace(/\s+/g,'').toLowerCase(); return /^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v); }~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v); }
-    function validaCPF(cpf){
-      cpf = soDigitos(cpf);
-      if(cpf.length !== 11 || /^([0-9])\1+$/.test(cpf)) return false;
-      let soma=0; for(let i=0;i<9;i++) soma += parseInt(cpf.charAt(i))*(10-i);
-      let d1 = 11 - (soma % 11); if(d1>9) d1=0; if(d1 != parseInt(cpf.charAt(9))) return false;
-      soma=0; for(let i=0;i<10;i++) soma += parseInt(cpf.charAt(i))*(11-i);
-      let d2 = 11 - (soma % 11); if(d2>9) d2=0; return d2 == parseInt(cpf.charAt(10));
-    }
-    function validaCNPJ(cnpj){
-      cnpj = soDigitos(cnpj);
-      if(cnpj.length !== 14 || /^([0-9])\1+$/.test(cnpj)) return false;
-      const peso1=[5,4,3,2,9,8,7,6,5,4,3,2], peso2=[6,5,4,3,2,9,8,7,6,5,4,3,2];
-      let soma=0; for(let i=0;i<12;i++) soma += parseInt(cnpj.charAt(i))*peso1[i];
-      let d1 = soma % 11; d1 = d1 < 2 ? 0 : 11 - d1; if(d1 != parseInt(cnpj.charAt(12))) return false;
-      soma=0; for(let i=0;i<13;i++) soma += parseInt(cnpj.charAt(i))*peso2[i];
-      let d2 = soma % 11; d2 = d2 < 2 ? 0 : 11 - d2; return d2 == parseInt(cnpj.charAt(13));
-    }
+    function emailValido(v){ v=(v||'').replace(/\s+/g,'').toLowerCase(); return /^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v); }
+    function validaCPF(cpf){ cpf=soDigitos(cpf); if(cpf.length !== 11 || /^([0-9])\1+$/.test(cpf)) return false; let s=0; for(let i=0;i<9;i++) s+=parseInt(cpf[i])*(10-i); let d1=11-(s%11); if(d1>9) d1=0; if(d1!=parseInt(cpf[9])) return false; s=0; for(let i=0;i<10;i++) s+=parseInt(cpf[i])*(11-i); let d2=11-(s%11); if(d2>9) d2=0; return d2==parseInt(cpf[10]); }
+    function validaCNPJ(cnpj){ cnpj=soDigitos(cnpj); if(cnpj.length!==14||/^([0-9])\1+$/.test(cnpj)) return false; const p1=[5,4,3,2,9,8,7,6,5,4,3,2], p2=[6,5,4,3,2,9,8,7,6,5,4,3,2]; let s=0; for(let i=0;i<12;i++) s+=parseInt(cnpj[i])*p1[i]; let d1=s%11; d1=d1<2?0:11-d1; if(d1!=parseInt(cnpj[12])) return false; s=0; for(let i=0;i<13;i++) s+=parseInt(cnpj[i])*p2[i]; let d2=s%11; d2=d2<2?0:11-d2; return d2==parseInt(cnpj[13]); }
     function ehCpfOuCnpjValido(v){ const d=soDigitos(v); if(d.length===11) return validaCPF(d); if(d.length===14) return validaCNPJ(d); return false; }
 
     document.getElementById('cadForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
+      e.preventDefault(); e.stopPropagation();
+      const $status = document.getElementById('status');
+      const btn = e.target.querySelector('button[type="submit"]');
+      const notify = (msg, cls='')=>{ $status.className = cls||'muted'; $status.textContent = msg; };
+      notify('Validando dados...'); btn.disabled = true;
+
       const first_name = document.getElementById('nome').value.trim();
       const last_name  = document.getElementById('sobrenome').value.trim();
-      const email      = document.getElementById('email').value.trim();
+      const email      = (document.getElementById('email').value||'').replace(/\s+/g,'').toLowerCase();
       const password   = document.getElementById('senha').value;
       const docFmt     = document.getElementById('doc').value;
       const doc        = soDigitos(docFmt);
 
-      if(!emailValido(email)) { alert('E-mail inválido.'); return; }
-      if(!ehCpfOuCnpjValido(doc)) { alert('CPF/CNPJ inválido.'); return; }
-      if(!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(password)) { alert('Senha não atende aos requisitos.'); return; }
+      if(!emailValido(email)) { notify('E-mail inválido.', 'error'); btn.disabled=false; return; }
+      if(!ehCpfOuCnpjValido(doc)) { notify('CPF/CNPJ inválido.', 'error'); btn.disabled=false; return; }
+      if(!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(password)) { notify('Senha não atende aos requisitos.', 'error'); btn.disabled=false; return; }
 
-      const { data: signData, error: signErr } = await supabase.auth.signUp({
-        email, password,
-        options: { data: { first_name, last_name, doc } }
-      });
-      if(signErr) { alert('Erro ao criar conta: ' + signErr.message); return; }
+      let signData, signErr;
+      try {
+        ({ data: signData, error: signErr } = await supabase.auth.signUp({
+          email, password,
+          options: { data: { first_name, last_name, doc }, emailRedirectTo: window.location.origin + '/login.html' }
+        }))
+      } catch(err) { signErr = err; }
+      if(signErr) { notify('Erro ao criar conta: '+(signErr.message||signErr), 'error'); btn.disabled=false; return; }
 
-      if(signData.user) {
-        await supabase.from('profiles').insert({
-          user_id: signData.user.id, first_name, last_name, email, doc
-        }).catch(()=>{});
-        alert('Conta criada!');
-        location.href = 'login.html';
+      if(signData && signData.user) {
+        notify('Criando seu perfil...');
+        try{ await supabase.from('profiles').insert({ user_id: signData.user.id, first_name, last_name, email, doc }); }catch(_e){}
+        notify('Conta criada! Redirecionando para o login...','ok');
+        setTimeout(()=>{ location.href = 'login.html'; }, 800);
       } else {
-        alert('Enviamos um e-mail de confirmação. Verifique sua caixa de entrada.');
+        notify('Enviamos um e-mail de confirmação. Verifique sua caixa de entrada.','ok');
       }
+      btn.disabled=false;
     });
   </script>
 

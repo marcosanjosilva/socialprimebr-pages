@@ -48,8 +48,7 @@
     @keyframes sweep{0%{transform:translateX(-10%);opacity:.6}50%{transform:translateX(10%);opacity:1}100%{transform:translateX(-10%);opacity:.6}}
     form{display:grid; gap:14px; margin-top:12px} label{font-weight:600} input, textarea{width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background: rgba(255,255,255,.04); color:var(--fg);}
     small{color:#9bb0d6}
-    .error{ color:#ff9aa2; }
-    .ok{ color:#9be79b; }
+    .error{ color:#ff9aa2; } .ok{ color:#9be79b; }
   </style>
 
 </head>
@@ -80,7 +79,7 @@
       e.preventDefault();
       const email = document.getElementById('email').value.trim();
       const redirectTo = window.location.origin + '/login.html';
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
       if(error) { alert('Erro: ' + error.message); return; }
       alert('Se o e-mail existir, enviaremos instruções de redefinição.');
       location.href='login.html';
