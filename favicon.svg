@@ -1,1 +1,5 @@
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#6ea8ff'/><stop offset='1' stop-color='#8e7bff'/></linearGradient><filter id='glow' x='-50%' y='-50%' width='200%' height='200%'><feGaussianBlur stdDeviation='1.5' result='b'/><feMerge><feMergeNode in='b'/><feMergeNode in='SourceGraphic'/></feMerge></filter></defs><rect width='64' height='64' rx='14' fill='#0f1522'/><path d='M36 6L12 36h13l-5 22 32-38H36z' fill='url(#g)' filter='url(#glow)'/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6ea8ff"/><stop offset=".7" stop-color="#8e7bff"/></linearGradient></defs>
+  <rect width="32" height="32" rx="6" fill="#0b0f17"/>
+  <path d="M8 18l7-12-2 8h9L14 26l2-8H8z" fill="url(#g)"/>
+</svg>
