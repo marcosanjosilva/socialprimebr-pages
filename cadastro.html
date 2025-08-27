@@ -74,10 +74,7 @@
           </div>
         </div>
         <label for="email">E-mail</label>
-        <input id="email" type="email" placeholder="voce@exemplo.com" required oninput="
-          if(this.value && !(/^[^\s@]+@[^\s@]+\.[^\s@](2,)$/.test(this.value))) this.setCustomValidity('E-mail com formato inválido.');
-          else this.setCustomValidity('');
-        ">
+        <input id="email" type="email" placeholder="voce@exemplo.com" required oninput="let v=(this.value||'').replace(/\s+/g,'').toLowerCase(); if(v!==this.value) this.value=v; this.setCustomValidity(''); if(v && !/^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v)){ this.setCustomValidity('E-mail com formato inválido.'); }">
         <label for="doc">CPF ou CNPJ</label>
         <input id="doc" type="text" placeholder="Somente números" required oninput="this.value=this.value.replace(/\D+/g,'').slice(0,14); (function(i){let v=i.value.replace(/\D+/g,''); if(v.length<=11){v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');}else{v=v.replace(/(\d{2})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1/$2').replace(/(\d{4})(\d{1,2})$/,'$1-$2');} i.value=v;})(this)">
         <small>Digite 11 dígitos para CPF ou 14 para CNPJ. O formato aparece automaticamente.</small>
@@ -103,7 +100,7 @@
     const supabase = createClient('https://mmfqumjckeumidrbysnf.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');
 
     function soDigitos(v){ return (v||'').replace(/\D+/g,''); }
-    function emailValido(v){ v=(v||'').replace(/\s+/g,'').toLowerCase(); return /^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v); }
+    function emailValido(v){ v=(v||'').replace(/\s+/g,'').toLowerCase(); return /^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v); }~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v); }
     function validaCPF(cpf){
       cpf = soDigitos(cpf);
       if(cpf.length !== 11 || /^([0-9])\1+$/.test(cpf)) return false;
