@@ -9,7 +9,8 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <style>
     :root{ --bg:#0b0f17; --bg-2:#0f1522; --fg:#e6ecff; --muted:#9bb0d6;
-           --brand:#6ea8ff; --brand-2:#8e7bff; --border:rgba(255,255,255,.08); --grid:rgba(255,255,255,.06);}
+           --brand:#6ea8ff; --brand-2:#8e7bff; --border:rgba(255,255,255,.08); --grid:rgba(255,255,255,.06);
+           --ok:#6ef7a6; --warn:#ffd36e; --off:#a0a8c0; }
     *{box-sizing:border-box} html,body{height:100%}
     body{margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
       background: radial-gradient(1200px 800px at 80% -10%, #14223c 0%, transparent 60%),
@@ -34,6 +35,7 @@
       background:linear-gradient(180deg, rgba(110,168,255,.18), rgba(110,168,255,.06)); color:#eaf2ff; padding:10px 14px; border-radius:10px;
       font-weight:600; font-size:14px; cursor:pointer; text-decoration:none; display:inline-flex; gap:8px;}
     .btn.secondary{ background:linear-gradient(180deg, rgba(142,123,255,.18), rgba(142,123,255,.06)); }
+    .btn.mini{ padding:6px 10px; font-size:12px; border-radius:8px; }
     .wrap{position:relative; z-index:1; padding:26px; max-width:1100px; margin:0 auto;}
     .muted{color:var(--muted)}
     .topline{display:flex; align-items:center; gap:8px; justify-content:center; font-weight:700;}
@@ -42,9 +44,23 @@
     .card{border:1px solid var(--border); background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
       border-radius:16px; padding:20px; min-height:120px; box-shadow:0 8px 30px rgba(0,0,0,.35);}
     .card h3{margin:0 0 8px; font-size:18px}
-    .big{display:grid; grid-template-columns: repeat(4,minmax(140px,1fr)); gap:16px}
-    .tile{border:1px solid var(--border); border-radius:14px; padding:20px; text-align:center; font-weight:800; letter-spacing:.6px;
-      background:linear-gradient(180deg, rgba(110,72,0,.45), rgba(110,72,0,.18)); color:#fff}
+    .big{display:grid; grid-template-columns: repeat(4,minmax(160px,1fr)); gap:16px}
+    .net{position:relative; border:1px solid var(--border); border-radius:16px; padding:18px; min-height:98px;
+      background: radial-gradient(800px 400px at 120% -40%, rgba(110,168,255,.12), transparent 60%),
+                  radial-gradient(800px 400px at -10% 120%, rgba(142,123,255,.12), transparent 60%),
+                  linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; cursor:default; display:flex; flex-direction:column; justify-content:space-between; gap:8px;}
+    .net:hover{ transform: translateY(-2px); box-shadow:0 8px 30px rgba(0,0,0,.35); border-color:rgba(255,255,255,.16); }
+    .net[data-state="off"]{ opacity:.55; filter:saturate(.7); }
+    .net[data-state="on"]{ box-shadow:0 0 0 1px rgba(110,168,255,.25), 0 0 22px rgba(110,168,255,.25) inset; }
+    .net .row{display:flex; align-items:center; justify-content:space-between;}
+    .net .name{font-weight:800; letter-spacing:.6px}
+    .badge{font-size:12px; border-radius:999px; padding:6px 10px; border:1px solid var(--border);}
+    .badge.on{ color:var(--ok); border-color:rgba(110,247,166,.35); background:rgba(110,247,166,.06);}
+    .badge.off{ color:var(--off); background:rgba(255,255,255,.03);}
+    .status-dot{width:8px; height:8px; border-radius:50%; margin-right:6px; display:inline-block}
+    .status-dot.on{ background:var(--ok); box-shadow:0 0 8px var(--ok);}
+    .status-dot.off{ background:var(--off);}
     .modal-bg{position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:5}
     .modal{width:min(520px,90vw); border:1px solid var(--border); background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border-radius:16px; padding:20px}
     .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
@@ -126,6 +142,18 @@
     }
   });
 
+  function makeCard(ws){
+    const el=document.createElement('div'); el.className='card';
+    const row=document.createElement('div'); row.className='row'; row.style.justifyContent='space-between';
+    const name=document.createElement('strong'); name.textContent=ws.name;
+    const btn=document.createElement('button'); btn.className='btn'; btn.textContent='Usar';
+    btn.addEventListener('click',()=>{ localStorage.setItem('sp_active_ws_id', ws.id); localStorage.setItem('sp_active_ws_name', ws.name); location.href='dashboard.html'; });
+    row.appendChild(name); row.appendChild(btn);
+    const p=document.createElement('p'); p.className='muted'; p.style.margin='6px 0 0'; p.textContent='Criado em '+new Date(ws.created_at).toLocaleDateString('pt-BR');
+    el.appendChild(row); el.appendChild(p);
+    return el;
+  }
+
   async function loadList(){
     const list = document.getElementById('list'); list.innerHTML='';
     const info = document.getElementById('countInfo');
@@ -136,24 +164,10 @@
     try {
       const { data, error } = await supabase.from('workspaces').select('id,name,created_at').order('created_at',{ascending:true});
       if(error) throw error;
-      info.textContent = `Você tem ${data.length}/10 perfis.`;
+      info.textContent = 'Você tem '+data.length+'/10 perfis.';
       goDash.style.display = data.length>0 ? 'inline-flex' : 'none';
-      data.forEach(ws=>{
-        const el=document.createElement('div'); el.className='card';
-        el.innerHTML=`<div class="row" style="justify-content:space-between">
-          <strong>$\{ws.name}</strong>
-          <button class="btn">Usar</button>
-        </div>
-        <p class="muted" style="margin:6px 0 0">Criado em $\{new Date(ws.created_at).toLocaleDateString('pt-BR')}</p>`;
-        el.querySelector('.btn').addEventListener('click',()=>{
-          localStorage.setItem('sp_active_ws_id', ws.id);
-          localStorage.setItem('sp_active_ws_name', ws.name);
-          location.href='dashboard.html';
-        });
-        list.appendChild(el);
-      });
+      data.forEach(ws=> list.appendChild(makeCard(ws)));
     } catch(err) {
-      console.error(err);
       const m=(err && (err.code==='42P01' || (err.message||'').includes('schema cache'))) ?
        'Erro ao carregar: a tabela de perfis ainda não existe. Rode o SQL “supabase_workspaces.sql” no Supabase e depois execute: SELECT pg_notify(\'pgrst\', \'reload schema\');' :
        ('Erro ao carregar: '+(err.message||err));
