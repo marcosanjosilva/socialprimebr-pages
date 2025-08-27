@@ -1,97 +1,52 @@
-<!doctype html><html><head><title>SocialPrimeBR — Configurações</title>
-  <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <link rel="icon" href="favicon.svg"/>
-  <link rel="stylesheet" href="theme.css"/>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script>
-    const supabase = window.supabase.createClient('https://mmfqumjckeumidrbysnf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');
-    async function requireSession(){ const { data:{ session } } = await supabase.auth.getSession(); if(!session){ location.href='login.html'; return null; } return session; }
-    function cap(s){ if(!s) return ""; return s.charAt(0).toUpperCase()+s.slice(1).toLowerCase(); }
-  </script>
-  <script src="background.js" defer></script>
-</head>
-<body>
-  <div class="gridbg"></div>
-  <header>
-    <a class="brand" href="dashboard.html">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M5 14L13 2l-2 8h8L9 22l2-8H5z" fill="url(#g)"/><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6ea8ff"/><stop offset=".7" stop-color="#8e7bff"/></linearGradient></defs></svg>
-      SocialPrimeBR
-    </a>
-    <div style="display:flex;gap:10px">
-      <a href="dashboard.html" class="btn secondary">← Voltar ao Dashboard</a>
-      <a href="workspaces.html" class="btn secondary">Trocar/Adicionar perfil</a>
-      <a id="logout" class="btn">Sair</a>
+<!doctype html><html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configurações — SocialPrimeBR</title>
+<link rel="stylesheet" href="theme.css">
+<script src="background.js" defer></script>
+</head><body>
+
+<header class="header">
+  <a class="brand" href="dashboard.html"><span class="bolt"></span> <strong>SocialPrimeBR</strong></a>
+  <nav class="nav">
+    <a class="btn ghost" href="calendar.html">Calendário</a>
+    <a class="btn ghost" href="schedule.html">Agendar</a>
+    <a class="btn ghost" href="workspaces.html">Trocar/Adicionar perfil</a>
+    <a class="btn ghost" href="settings.html">Configurações</a>
+    <a class="btn" href="login.html">Sair</a>
+  </nav>
+</header>
+
+<main class="grid cols-3">
+  <section class="card">
+    <div class="badge">Alterar e-mail</div>
+    <input class="input" placeholder="novo@exemplo.com">
+    <input class="input" placeholder="Sua senha atual" type="password" style="margin-top:8px">
+    <button class="btn" style="margin-top:8px">Atualizar e-mail</button>
+    <div class="hint" style="margin-top:8px">Será enviado um link de confirmação para o novo e-mail.</div>
+    <a class="btn ghost" href="dashboard.html" style="margin-top:12px">← Voltar ao Dashboard</a>
+  </section>
+
+  <section class="card">
+    <div class="badge">Alterar senha</div>
+    <input class="input" placeholder="Senha atual" type="password">
+    <input class="input" placeholder="Nova senha (mín. 8, com letra maiúscula)" type="password" style="margin-top:8px">
+    <button class="btn" style="margin-top:8px">Atualizar senha</button>
+  </section>
+
+  <section class="card">
+    <div class="badge">Seus perfis</div>
+    <div class="tile">
+      <strong>Sherife</strong>
+      <button class="btn ghost" style="float:right" onclick="del()">🗑️</button>
+      <div class="hint">Criado em 27/08/2025</div>
     </div>
-  </header>
-
-  <div class="wrap">
-    <h2 style="margin:0 0 6px">Configurações</h2>
-    <div class="cards">
-      <div class="card span-4">
-        <h3>Alterar e-mail</h3>
-        <label>Novo e-mail</label><input id="newEmail" placeholder="voce@exemplo.com"/>
-        <label>Sua senha atual</label><input id="pwdForEmail" type="password" placeholder="••••••••"/>
-        <div style="margin-top:10px;display:flex;justify-content:flex-end"><button class="btn" id="btnEmail">Atualizar e-mail</button></div>
-        <div id="msgEmail" class="muted" style="margin-top:8px"></div>
-      </div>
-
-      <div class="card span-4">
-        <h3>Alterar senha</h3>
-        <label>Senha atual</label><input id="oldPwd" type="password" placeholder="••••••••"/>
-        <label>Nova senha</label><input id="newPwd" type="password" placeholder="Min. 8, com letra maiúscula e número"/>
-        <div style="margin-top:10px;display:flex;justify-content:flex-end"><button class="btn" id="btnPwd">Atualizar senha</button></div>
-        <div id="msgPwd" class="muted" style="margin-top:8px"></div>
-      </div>
-
-      <div class="card span-4">
-        <h3>Seus perfis</h3>
-        <div id="wsList" class="cards"></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="confirm" class="modal-bg">
-    <div class="modal">
-      <h3>Confirmar exclusão</h3>
-      <div class="muted">Essa ação é permanente e não pode ser desfeita.</div>
-      <label>Senha da conta</label><input id="confirmPwd" type="password" placeholder="••••••••"/>
-      <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:10px">
-        <button class="btn secondary" id="cancelDel">Cancelar</button>
-        <button class="btn" id="doDel">Excluir</button>
-      </div>
-      <div id="msgDel" class="muted" style="margin-top:8px"></div>
-    </div>
-  </div>
-
-  <script>
-    document.getElementById('logout').onclick = async ()=>{ await supabase.auth.signOut(); location.href='login.html'; };
-    let toDeleteId=null;
-
-    async function load(){
-      const s=await requireSession(); if(!s) return;
-      const res = await supabase.from('workspaces').select('id,name,created_at').order('created_at');
-      const box = document.getElementById('wsList'); box.innerHTML="";
-      (res.data||[]).forEach(w=>{
-        const el=document.createElement('div'); el.className='card span-12';
-        el.innerHTML='<div class="ws-mini">'
-          +'<div><strong>'+cap(w.name)+'</strong><div class="muted">Criado em '+new Date(w.created_at).toLocaleDateString('pt-BR')+'</div></div>'
-          +'<button class="btn" onclick="askDel(\\''+w.id+'\\')">🗑️ Excluir</button>'
-          +'</div>';
-        box.appendChild(el);
-      });
-    }
-    window.askDel=function(id){ toDeleteId=id; document.getElementById('confirm').style.display='flex'; }
-    document.getElementById('cancelDel').onclick=()=>{ toDeleteId=null; document.getElementById('confirm').style.display='none'; };
-    document.getElementById('doDel').onclick=async()=>{
-      const msg=document.getElementById('msgDel'); msg.textContent='';
-      if(!toDeleteId) return;
-      const pwd=(document.getElementById('confirmPwd').value||'').trim(); if(pwd.length<6){ msg.textContent='Informe sua senha.'; return; }
-      const got=await supabase.auth.getUser(); const email=got.data?.user?.email;
-      const re=await supabase.auth.signInWithPassword({ email, password:pwd }); if(re.error){ msg.textContent='Senha incorreta.'; return; }
-      const del=await supabase.from('workspaces').delete().eq('id',toDeleteId); if(del.error){ msg.textContent=del.error.message; return; }
-      if(localStorage.getItem('sp_active_ws_id')===toDeleteId){ localStorage.removeItem('sp_active_ws_id'); localStorage.removeItem('sp_active_ws_name'); }
-      document.getElementById('confirm').style.display='none'; toDeleteId=null; load();
-    };
-    load();
-  </script>
+  </section>
+</main>
+<script>
+function del(){
+  const p=prompt('Para excluir, digite sua senha:');
+  if(!p) return;
+  if(confirm('Tem certeza? Esta ação é permanente.')) alert('Mock: perfil excluído (implementar chamada Supabase).');
+}
+</script>
 </body></html>

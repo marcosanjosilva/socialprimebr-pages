@@ -1,115 +1,70 @@
-<!doctype html>
-<html><head><title>SocialPrimeBR — Dashboard</title>
-  <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <link rel="icon" href="favicon.svg"/>
-  <link rel="stylesheet" href="theme.css"/>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script>
-    const supabase = window.supabase.createClient('https://mmfqumjckeumidrbysnf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');
-    async function requireSession(){ const { data:{ session } } = await supabase.auth.getSession(); if(!session){ location.href='login.html'; return null; } return session; }
-    function cap(s){ if(!s) return ""; return s.charAt(0).toUpperCase()+s.slice(1).toLowerCase(); }
-  </script>
-  <script src="background.js" defer></script>
-</head>
-<body>
-  <div class="gridbg"></div>
-  <header>
-    <a class="brand" href="dashboard.html" title="Início do Dashboard">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M5 14L13 2l-2 8h8L9 22l2-8H5z" fill="url(#g)"/><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6ea8ff"/><stop offset=".7" stop-color="#8e7bff"/></linearGradient></defs></svg>
-      SocialPrimeBR
-    </a>
-    <div style="display:flex;gap:10px;align-items:center">
-      <span id="wsName" class="pill">Carregando perfil…</span>
-      <a href="workspaces.html" class="btn secondary">Trocar/Adicionar perfil</a>
-      <a href="calendar.html" class="btn secondary">Calendário</a>
-      <a href="schedule.html" class="btn secondary">Agendar</a>
-      <a href="settings.html" class="btn secondary">Configurações</a>
-      <a id="logout" class="btn">Sair</a>
-    </div>
-  </header>
+<!doctype html><html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard — SocialPrimeBR</title>
+<link rel="stylesheet" href="theme.css">
+<script src="background.js" defer></script>
+</head><body>
 
-  <div class="wrap">
-    <section id="banner" class="banner" style="display:none"></section>
+<header class="header">
+  <a class="brand" href="dashboard.html"><span class="bolt"></span> <strong>SocialPrimeBR</strong></a>
+  <nav class="nav">
+    <a class="btn ghost" href="calendar.html">Calendário</a>
+    <a class="btn ghost" href="schedule.html">Agendar</a>
+    <a class="btn ghost" href="workspaces.html">Trocar/Adicionar perfil</a>
+    <a class="btn ghost" href="settings.html">Configurações</a>
+    <a class="btn" href="login.html">Sair</a>
+  </nav>
+</header>
 
-    <h2 style="margin:14px 0 6px">Redes Sociais</h2>
-    <div class="muted">Verifique e conecte as redes para este perfil.</div>
-    <div id="grid" class="netgrid"></div>
-  </div>
+<main>
+  <section class="card" id="banner-card">
+    <div class="badge">Avisos & Atualizações</div>
+    <div id="banner-content" class="tile">Sem novidades por enquanto.</div>
+  </section>
 
-  <aside id="gpt" class="sidegpt">
-    <header><strong>Assistente</strong><a class="btn secondary" target="_blank" href="https://chatgpt.com">Abrir em nova aba</a></header>
-    <div class="chatui"><div id="msgs" class="msgs"></div>
-      <form id="chatForm"><input id="chatInput" placeholder="Pergunte algo…"/><button class="btn">Enviar</button></form>
-    </div>
-  </aside>
+  <section class="grid cols-3" style="margin-top:16px">
+    <a class="card" href="calendar.html"><div class="badge">Calendário</div><div class="hint">Visualize e gerencie seus agendamentos</div></a>
+    <a class="card" href="schedule.html"><div class="badge">Agendar</div><div class="hint">Crie publicações para várias datas e redes</div></a>
+    <div class="card"><div class="badge">Perfil</div><div class="hint">Trocar / adicionar perfil</div><a class="btn" href="workspaces.html" style="margin-top:8px">Abrir</a></div>
+  </section>
 
-  <script>
-    const NETWORKS=["Instagram","Facebook","Threads","TikTok","Pinterest","YouTube","X","Google"];
-    function tile(name, connected){ const st=connected?'on':'off';
-      return '<div class="tile" data-state="'+st+'">'
-        +'<div style="display:flex;align-items:center;justify-content:space-between">'
-        +'<strong>'+name.toUpperCase()+'</strong>'
-        +'<span class="badge '+st+'">'+(connected?'Conectado':'Não conectado')+'</span>'
-        +'</div>'
-        +'<div class="muted">Integração em preparação.</div>'
-        +'</div>';
-    }
-    document.getElementById('logout').onclick = async ()=>{ await supabase.auth.signOut(); location.href='login.html'; };
-
-    async function loadBanner(){
-      try{
-        const { data } = supabase.storage.from('assets').getPublicUrl('banner.html');
-        const url = data.publicUrl;
-        const r = await fetch(url, { cache:'no-store' });
-        if(r.ok){ const html = await r.text(); const b = document.getElementById('banner'); b.innerHTML = html; b.style.display='block'; }
-      }catch(e){ /* sem banner */ }
-    }
-
-    async function boot(){
-      const s = await requireSession(); if(!s) return;
-      const name = localStorage.getItem('sp_active_ws_name')||'';
-      document.getElementById('wsName').innerHTML='<strong>'+cap(name)+'</strong>';
-      const grid = document.getElementById('grid'); grid.innerHTML='';
-      NETWORKS.forEach(n=> grid.insertAdjacentHTML('beforeend', tile(n,false)));
-      loadBanner();
-    }
-    boot();
-  </script>
+  <h2 style="margin:18px 0 8px">Redes Sociais</h2>
+  <section class="social-grid">
+    <div class="social"><div class="top"><strong>Instagram</strong><span class="hint"><span class="dot"></span>Não conectado</span></div><div class="hint">Integração em preparação.</div></div>
+    <div class="social"><div class="top"><strong>Facebook</strong><span class="hint"><span class="dot"></span>Não conectado</span></div><div class="hint">Integração em preparação.</div></div>
+    <div class="social"><div class="top"><strong>Threads</strong><span class="hint"><span class="dot"></span>Não conectado</span></div><div class="hint">Integração em preparação.</div></div>
+    <div class="social"><div class="top"><strong>TikTok</strong><span class="hint"><span class="dot"></span>Não conectado</span></div><div class="hint">Integração em preparação.</div></div>
+    <div class="social"><div class="top"><strong>Pinterest</strong><span class="hint"><span class="dot"></span>Não conectado</span></div><div class="hint">Integração em preparação.</div></div>
+    <div class="social"><div class="top"><strong>YouTube</strong><span class="hint"><span class="dot"></span>Não conectado</span></div><div class="hint">Integração em preparação.</div></div>
+    <div class="social"><div class="top"><strong>X</strong><span class="hint"><span class="dot"></span>Não conectado</span></div><div class="hint">Integração em preparação.</div></div>
+    <div class="social"><div class="top"><strong>Google</strong><span class="hint"><span class="dot"></span>Não conectado</span></div><div class="hint">Integração em preparação.</div></div>
+  </section>
+</main>
 
 <script>
-const FN_URL = 'https://mmfqumjckeumidrbysnf.supabase.co/functions/v1/sp_assistant';
-let history = [{role:'system', content:'Você é o assistente da SocialPrimeBR.'}];
-function ensureSide(){
-  const panel=document.getElementById('gpt'); if(!panel) return;
-  if(innerWidth>=1200) panel.style.display='block';
-}
-addEventListener('resize', ensureSide);
-function pushMsg(role, text){
-  const msgs=document.getElementById('msgs'); const el=document.createElement('div');
-  el.className='msg '+role; el.innerHTML='<div class="bubble">'+(text||'').replace(/</g,'&lt;')+'</div>';
-  msgs.appendChild(el); msgs.scrollTop=msgs.scrollHeight;
-}
-document.addEventListener('DOMContentLoaded', ()=>{
-  ensureSide();
-  const form=document.getElementById('chatForm'); if(!form) return;
-  form.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const inp=document.getElementById('chatInput');
-    const text=(inp.value||'').trim(); if(!text) return;
-    inp.value=''; pushMsg('user', text);
-    try{
-      const { data:{ session } } = await supabase.auth.getSession();
-      const r = await fetch(FN_URL, {
-        method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token },
-        body: JSON.stringify({ messages: history.concat([{role:'user', content:text}]) })
-      });
-      const j = await r.json();
-      const reply=((j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||j.content||j.text||'Sem resposta');
-      pushMsg('assistant', reply);
-      history.push({role:'user', content:text}); history.push({role:'assistant', content:reply});
-    }catch(e){ pushMsg('assistant',"Erro ao falar com o assistente."); }
-  });
-});
+(async()=>{
+  try{
+    const r = await fetch('assets/banner.html',{cache:'no-store'});
+    if(r.ok){ document.getElementById('banner-content').innerHTML = await r.text(); }
+  }catch(e){}
+})();
+</script>
+
+
+<aside id="assistant" aria-label="Assistente (desktop)">
+  <header>
+    <strong>Assistente</strong>
+    <a class="btn ghost" href="https://chatgpt.com" target="_blank" rel="noopener">Abrir em nova aba</a>
+  </header>
+  <iframe src="about:blank" referrerpolicy="no-referrer"></iframe>
+  <div class="fallback">Alguns navegadores bloqueiam o ChatGPT em iframes. Use “Abrir em nova aba”.</div>
+</aside>
+<script>
+  const setSide=()=>document.body.classList.toggle('has-side', innerWidth>=1200);
+  setSide(); addEventListener('resize', setSide);
+  document.querySelector('#assistant iframe').srcdoc =
+    `<style>body{margin:0;color:#cbd5ff;background:transparent;font:14px/1.4 system-ui}</style>
+     <div style="padding:14px">Use o botão acima para abrir o Chat em nova aba.</div>`;
 </script>
 
 </body></html>

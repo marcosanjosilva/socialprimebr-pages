@@ -1,78 +1,49 @@
-<!doctype html><html><head><title>SocialPrimeBR — Perfis</title>
-  <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <link rel="icon" href="favicon.svg"/>
-  <link rel="stylesheet" href="theme.css"/>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script>
-    const supabase = window.supabase.createClient('https://mmfqumjckeumidrbysnf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');
-    async function requireSession(){ const { data:{ session } } = await supabase.auth.getSession(); if(!session){ location.href='login.html'; return null; } return session; }
-    function cap(s){ if(!s) return ""; return s.charAt(0).toUpperCase()+s.slice(1).toLowerCase(); }
-  </script>
-  <script src="background.js" defer></script>
-</head>
-<body>
-  <div class="gridbg"></div>
-  <header>
-    <a class="brand" href="dashboard.html">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M5 14L13 2l-2 8h8L9 22l2-8H5z" fill="url(#g)"/><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6ea8ff"/><stop offset=".7" stop-color="#8e7bff"/></linearGradient></defs></svg>
-      SocialPrimeBR
-    </a>
-    <div style="display:flex;gap:10px">
-      <a href="dashboard.html" class="btn secondary">← Voltar ao Dashboard</a>
-      <a id="logout" class="btn">Sair</a>
+<!doctype html><html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perfis — SocialPrimeBR</title>
+<link rel="stylesheet" href="theme.css">
+<script src="background.js" defer></script>
+</head><body>
+
+<header class="header">
+  <a class="brand" href="dashboard.html"><span class="bolt"></span> <strong>SocialPrimeBR</strong></a>
+  <nav class="nav">
+    <a class="btn ghost" href="calendar.html">Calendário</a>
+    <a class="btn ghost" href="schedule.html">Agendar</a>
+    <a class="btn ghost" href="workspaces.html">Trocar/Adicionar perfil</a>
+    <a class="btn ghost" href="settings.html">Configurações</a>
+    <a class="btn" href="login.html">Sair</a>
+  </nav>
+</header>
+
+<main>
+  <section class="card">
+    <div class="badge">Perfis (workspaces)</div>
+    <div class="grid cols-2" id="list"></div>
+    <hr style="border-color:var(--border);margin:14px 0">
+    <div class="badge">Novo perfil</div>
+    <div class="grid cols-2">
+      <input id="name" class="input" placeholder="Ex.: Agência — Cliente A">
+      <button class="btn" onclick="add()">Criar</button>
     </div>
-  </header>
-
-  <div class="wrap">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <h2 style="margin:0">Perfis (workspaces)</h2>
-      <button class="btn" id="openNew">+ Criar novo perfil</button>
-    </div>
-    <div id="list" class="cards"></div>
-    <div id="goDashWrap" style="margin-top:16px;display:none"><a class="btn secondary" href="dashboard.html">Ir para o Dashboard</a></div>
-  </div>
-
-  <div id="modal" class="modal-bg">
-    <div class="modal">
-      <h3 style="margin-top:0">Novo perfil</h3>
-      <label>Nome do perfil</label><input id="wsName" placeholder="Ex.: Agência — Cliente A"/>
-      <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px">
-        <button class="btn secondary" id="cancel">Cancelar</button>
-        <button class="btn" id="create">Criar</button>
-      </div>
-      <div id="msg" class="muted" style="margin-top:10px"></div>
-    </div>
-  </div>
-
-  <script>
-    document.getElementById('openNew').onclick=()=>document.getElementById('modal').style.display='flex';
-    document.getElementById('cancel').onclick=()=>document.getElementById('modal').style.display='none';
-    document.getElementById('logout').onclick=async()=>{ await supabase.auth.signOut(); location.href='login.html'; };
-
-    async function load(){
-      const s=await requireSession(); if(!s) return;
-      const res=await supabase.from('workspaces').select('id,name,created_at').order('created_at');
-      const list=document.getElementById('list'); list.innerHTML="";
-      document.getElementById('goDashWrap').style.display = (res.data||[]).length? 'block':'none';
-      (res.data||[]).forEach(w=>{
-        const el=document.createElement('div'); el.className='card span-6';
-        el.innerHTML='<div class="ws-mini">'
-          +'<div><strong>'+cap(w.name)+'</strong><div class="muted">Criado em '+new Date(w.created_at).toLocaleDateString('pt-BR')+'</div></div>'
-          +'<div><button class="btn" onclick="useWS(\\''+w.id+'\\',\\''+w.name+'\\')">Usar</button></div>'
-          +'</div>';
-        list.appendChild(el);
-      });
-    }
-    async function createWS(){
-      const name=(document.getElementById('wsName').value||'').trim(); const msg=document.getElementById('msg');
-      if(name.length<2){ msg.textContent='Informe um nome válido.'; return; }
-      const ins=await supabase.from('workspaces').insert({name}).select().single();
-      if(ins.error){ msg.textContent=ins.error.message; return; }
-      localStorage.setItem('sp_active_ws_id',ins.data.id); localStorage.setItem('sp_active_ws_name',ins.data.name);
-      location.href='dashboard.html';
-    }
-    document.getElementById('create').onclick=createWS;
-    window.useWS=(id,name)=>{ localStorage.setItem('sp_active_ws_id',id); localStorage.setItem('sp_active_ws_name',name); location.href='dashboard.html'; };
-    load();
-  </script>
+  </section>
+</main>
+<script>
+const list=document.getElementById('list');
+const data=[{id:1,name:'Sherife',created_at:new Date()}];
+function render(){
+  list.innerHTML='';
+  data.forEach(ws=>{
+    const card=document.createElement('div'); card.className='tile';
+    card.innerHTML=`<strong>${ws.name}</strong> <button class='btn' style='float:right' onclick='useWS(${ws.id})'>Usar</button><div class="hint">Criado em ${ws.created_at.toLocaleDateString('pt-BR')}</div>`;
+    list.appendChild(card);
+  });
+}
+function add(){
+  const n=document.getElementById('name').value.trim(); if(!n) return alert('Informe um nome.');
+  data.push({id:Date.now(), name:n, created_at:new Date()}); render(); document.getElementById('name').value='';
+}
+function useWS(id){ alert('Mock: usar perfil '+id); }
+render();
+</script>
 </body></html>

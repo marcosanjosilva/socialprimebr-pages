@@ -1,105 +1,107 @@
-<!doctype html><html><head><title>SocialPrimeBR — Calendário</title>
-  <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <link rel="icon" href="favicon.svg"/>
-  <link rel="stylesheet" href="theme.css"/>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script>
-    const supabase = window.supabase.createClient('https://mmfqumjckeumidrbysnf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');
-    async function requireSession(){ const { data:{ session } } = await supabase.auth.getSession(); if(!session){ location.href='login.html'; return null; } return session; }
-    function cap(s){ if(!s) return ""; return s.charAt(0).toUpperCase()+s.slice(1).toLowerCase(); }
-  </script>
-  <script src="background.js" defer></script>
-</head>
-<body>
-  <div class="gridbg"></div>
-  <header>
-    <a class="brand" href="dashboard.html">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M5 14L13 2l-2 8h8L9 22l2-8H5z" fill="url(#g)"/><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6ea8ff"/><stop offset=".7" stop-color="#8e7bff"/></linearGradient></defs></svg>
-      SocialPrimeBR
-    </a>
-    <div style="display:flex;gap:10px">
-      <a href="dashboard.html" class="btn secondary">← Voltar ao Dashboard</a>
-      <a href="schedule.html" class="btn secondary">Agendar publicação</a>
-      <a href="settings.html" class="btn secondary">Configurações</a>
-      <a id="logout" class="btn">Sair</a>
+<!doctype html><html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendário — SocialPrimeBR</title>
+<link rel="stylesheet" href="theme.css">
+<script src="background.js" defer></script>
+</head><body>
+
+<header class="header">
+  <a class="brand" href="dashboard.html"><span class="bolt"></span> <strong>SocialPrimeBR</strong></a>
+  <nav class="nav">
+    <a class="btn ghost" href="calendar.html">Calendário</a>
+    <a class="btn ghost" href="schedule.html">Agendar</a>
+    <a class="btn ghost" href="workspaces.html">Trocar/Adicionar perfil</a>
+    <a class="btn ghost" href="settings.html">Configurações</a>
+    <a class="btn" href="login.html">Sair</a>
+  </nav>
+</header>
+
+<main>
+  <section class="card calendar">
+    <div class="head">
+      <button class="btn" id="prev">◀</button>
+      <div><span class="badge" id="monthLabel">Carregando…</span></div>
+      <button class="btn" id="next">▶</button>
     </div>
-  </header>
-
-  <div class="wrap">
-    <h2 style="margin:0 0 6px">Calendário</h2>
-    <div id="calendar" class="cards"></div>
-  </div>
-
-  <aside id="gpt" class="sidegpt">
-    <header><strong>Assistente</strong></header>
-    <div class="chatui"><div id="msgs" class="msgs"></div>
-      <form id="chatForm"><input id="chatInput" placeholder="Pergunte algo…"/><button class="btn">Enviar</button></form>
+    <div class="grid" id="weekdays">
+      <div class="hint">Dom</div><div class="hint">Seg</div><div class="hint">Ter</div>
+      <div class="hint">Qua</div><div class="hint">Qui</div><div class="hint">Sex</div><div class="hint">Sáb</div>
     </div>
-  </aside>
+    <div class="grid" id="days"></div>
+  </section>
 
-  <script>
-    document.getElementById('logout').onclick=async()=>{ await supabase.auth.signOut(); location.href='login.html'; };
-    function drawCal(date=new Date()){
-      const cal=document.getElementById('calendar'); cal.innerHTML="";
-      const y=date.getFullYear(), m=date.getMonth();
-      const first=new Date(y,m,1), last=new Date(y,m+1,0);
-      const head=document.createElement('div'); head.className='card span-12';
-      head.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center">'
-        +'<button class="btn" id="prev">◀</button>'
-        +'<h3 style="margin:0">'+date.toLocaleString('pt-BR',{month:'long',year:'numeric'})+'</h3>'
-        +'<button class="btn" id="next">▶</button></div>';
-      cal.appendChild(head);
-      const grid=document.createElement('div'); grid.className='card span-12'; grid.style.padding='0';
-      const tbl=document.createElement('table'); tbl.style.width='100%'; tbl.style.borderCollapse='collapse'; tbl.style.color='var(--fg)';
-      tbl.innerHTML='<thead><tr>'+['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(d=>'<th style="padding:10px;border-bottom:1px solid var(--b1)">'+d+'</th>').join('')+'</tr></thead>';
-      const tb=document.createElement('tbody'); let row=document.createElement('tr');
-      for(let i=0;i<first.getDay();i++) row.appendChild(document.createElement('td'));
-      for(let d=1; d<=last.getDate(); d++){
-        if((first.getDay()+d-1)%7===0){ tb.appendChild(row); row=document.createElement('tr'); }
-        const cell=document.createElement('td'); cell.style.padding='10px'; cell.style.borderTop='1px solid var(--b1)';
-        cell.innerHTML='<div class="pill">'+d+'</div>'; row.appendChild(cell);
-      }
-      tb.appendChild(row); tbl.appendChild(tb); grid.appendChild(tbl); cal.appendChild(grid);
-      head.querySelector('#prev').onclick=()=>drawCal(new Date(y,m-1,1));
-      head.querySelector('#next').onclick=()=>drawCal(new Date(y,m+1,1));
-    }
-    requireSession().then(()=>drawCal());
-  </script>
+  <section class="card" style="margin-top:16px">
+    <div class="badge">Agendamentos do mês</div>
+    <div id="list" class="grid"></div>
+  </section>
+</main>
 
 <script>
-const FN_URL = 'https://mmfqumjckeumidrbysnf.supabase.co/functions/v1/sp_assistant';
-let history = [{role:'system', content:'Você é o assistente da SocialPrimeBR.'}];
-function ensureSide(){
-  const panel=document.getElementById('gpt'); if(!panel) return;
-  if(innerWidth>=1200) panel.style.display='block';
+const monthLabel=document.getElementById('monthLabel');
+const daysEl=document.getElementById('days');
+const listEl=document.getElementById('list');
+let base=new Date(); base.setDate(1);
+
+function sampleData(y,m){
+  return [
+    {date:new Date(y,m,3), title:'Reels - Produto X', status:'Agendado'},
+    {date:new Date(y,m,3), title:'Story - Bastidores', status:'Agendado'},
+    {date:new Date(y,m,3), title:'Feed - Promoção', status:'Agendado'},
+    {date:new Date(y,m,12), title:'YouTube Shorts', status:'Agendado'},
+    {date:new Date(y,m,20), title:'TikTok teaser', status:'Agendado'},
+    {date:new Date(y,m,28), title:'Post Blog', status:'Agendado'},
+  ];
 }
-addEventListener('resize', ensureSide);
-function pushMsg(role, text){
-  const msgs=document.getElementById('msgs'); const el=document.createElement('div');
-  el.className='msg '+role; el.innerHTML='<div class="bubble">'+(text||'').replace(/</g,'&lt;')+'</div>';
-  msgs.appendChild(el); msgs.scrollTop=msgs.scrollHeight;
-}
-document.addEventListener('DOMContentLoaded', ()=>{
-  ensureSide();
-  const form=document.getElementById('chatForm'); if(!form) return;
-  form.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const inp=document.getElementById('chatInput');
-    const text=(inp.value||'').trim(); if(!text) return;
-    inp.value=''; pushMsg('user', text);
-    try{
-      const { data:{ session } } = await supabase.auth.getSession();
-      const r = await fetch(FN_URL, {
-        method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token },
-        body: JSON.stringify({ messages: history.concat([{role:'user', content:text}]) })
-      });
-      const j = await r.json();
-      const reply=((j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||j.content||j.text||'Sem resposta');
-      pushMsg('assistant', reply);
-      history.push({role:'user', content:text}); history.push({role:'assistant', content:reply});
-    }catch(e){ pushMsg('assistant',"Erro ao falar com o assistente."); }
+
+function render(){
+  const y=base.getFullYear(), m=base.getMonth();
+  monthLabel.textContent = base.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  const firstDow=(new Date(y,m,1).getDay()+7)%7;
+  const days= new Date(y,m+1,0).getDate();
+  const data=sampleData(y,m);
+  daysEl.innerHTML=''; listEl.innerHTML='';
+
+  for(let i=0;i<firstDow;i++) daysEl.appendChild(document.createElement('div'));
+  for(let d=1; d<=days; d++){ 
+    const box=document.createElement('div'); box.className='day';
+    box.innerHTML=`<div class="num">${d}</div>`;
+    const ev=data.filter(e=>e.date.getDate()===d);
+    ev.slice(0,3).forEach(e=>{
+      const p=document.createElement('div'); p.className='event'; p.textContent=e.title; box.appendChild(p);
+    });
+    if(ev.length>3){ 
+      const more=document.createElement('div'); more.className='hint'; more.textContent='… mostrar mais';
+      more.style.cursor='pointer'; more.onclick=()=>alert(ev.map(e=>e.title).join('\n')); box.appendChild(more);
+    }
+    daysEl.appendChild(box);
+  }
+
+  data.forEach(e=>{ 
+    const item=document.createElement('div'); item.className='tile';
+    item.innerHTML=`<strong>${e.date.toLocaleDateString('pt-BR')}</strong> — ${e.title} <span class="badge">${e.status}</span>`; 
+    listEl.appendChild(item);
   });
-});
+}
+document.getElementById('prev').onclick=()=>{base.setMonth(base.getMonth()-1);render();}
+document.getElementById('next').onclick=()=>{base.setMonth(base.getMonth()+1);render();}
+render();
+</script>
+
+
+<aside id="assistant" aria-label="Assistente (desktop)">
+  <header>
+    <strong>Assistente</strong>
+    <a class="btn ghost" href="https://chatgpt.com" target="_blank" rel="noopener">Abrir em nova aba</a>
+  </header>
+  <iframe src="about:blank" referrerpolicy="no-referrer"></iframe>
+  <div class="fallback">Alguns navegadores bloqueiam o ChatGPT em iframes. Use “Abrir em nova aba”.</div>
+</aside>
+<script>
+  const setSide=()=>document.body.classList.toggle('has-side', innerWidth>=1200);
+  setSide(); addEventListener('resize', setSide);
+  document.querySelector('#assistant iframe').srcdoc =
+    `<style>body{margin:0;color:#cbd5ff;background:transparent;font:14px/1.4 system-ui}</style>
+     <div style="padding:14px">Use o botão acima para abrir o Chat em nova aba.</div>`;
 </script>
 
 </body></html>
