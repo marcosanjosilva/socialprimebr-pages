@@ -45,7 +45,6 @@
     .big{display:grid; grid-template-columns: repeat(4,minmax(140px,1fr)); gap:16px}
     .tile{border:1px solid var(--border); border-radius:14px; padding:20px; text-align:center; font-weight:800; letter-spacing:.6px;
       background:linear-gradient(180deg, rgba(110,72,0,.45), rgba(110,72,0,.18)); color:#fff}
-    /* modal */
     .modal-bg{position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:5}
     .modal{width:min(520px,90vw); border:1px solid var(--border); background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border-radius:16px; padding:20px}
     .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
@@ -99,15 +98,20 @@
     const { data: { session } } = await supabase.auth.getSession();
     if(!session){ location.href='login.html'; return; }
 
-    // exige ter perfil
-    const wsId = localStorage.getItem('sp_active_ws_id');
-    const wsName = localStorage.getItem('sp_active_ws_name');
-    const { data: list } = await supabase.from('workspaces').select('id,name').order('created_at');
-    if(!list || list.length===0){ location.href='workspaces.html?first=1'; return; }
-    let current = list.find(w=>w.id===wsId) || list[0];
-    localStorage.setItem('sp_active_ws_id', current.id);
-    localStorage.setItem('sp_active_ws_name', current.name);
-    document.getElementById('wsCurrent').textContent = current.name.toUpperCase();
+    // Se não houver tabela/nenhum perfil, mandar para criar primeiro perfil
+    try {
+      const { data: list, error } = await supabase.from('workspaces').select('id,name').order('created_at');
+      if(error) throw error;
+      if(!list || list.length===0){ location.href='workspaces.html?first=1'; return; }
+      let current=null;
+      const wsId = localStorage.getItem('sp_active_ws_id');
+      current = list.find(w=>w.id===wsId) || list[0];
+      localStorage.setItem('sp_active_ws_id', current.id);
+      localStorage.setItem('sp_active_ws_name', current.name);
+      document.getElementById('wsCurrent').textContent = current.name.toUpperCase();
+    } catch(err) {
+      location.href='workspaces.html?first=1';
+    }
   }
   boot();
 </script>

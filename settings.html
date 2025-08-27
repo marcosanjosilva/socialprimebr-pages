@@ -45,7 +45,6 @@
     .big{display:grid; grid-template-columns: repeat(4,minmax(140px,1fr)); gap:16px}
     .tile{border:1px solid var(--border); border-radius:14px; padding:20px; text-align:center; font-weight:800; letter-spacing:.6px;
       background:linear-gradient(180deg, rgba(110,72,0,.45), rgba(110,72,0,.18)); color:#fff}
-    /* modal */
     .modal-bg{position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:5}
     .modal{width:min(520px,90vw); border:1px solid var(--border); background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border-radius:16px; padding:20px}
     .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
@@ -138,12 +137,10 @@
     if(name !== delTarget.name){ document.getElementById('delMsg').textContent='Nome não confere.'; return; }
     const { data: { session } } = await supabase.auth.getSession();
     if(!session){ location.href='login.html'; return; }
-    // reautentica
     const { error: authErr } = await supabase.auth.signInWithPassword({ email: session.user.email, password: pwd });
     if(authErr){ document.getElementById('delMsg').textContent='Senha incorreta.'; return; }
     const { error } = await supabase.from('workspaces').delete().eq('id', delTarget.id);
-    if(error){ document.getElementById('delMsg').textContent= error.message; return; }
-    // limpar ativo, se era o atual
+    if(error){ document.getElementById('delMsg').textContent= (error.code==='42P01' ? 'A tabela de perfis ainda não existe. Rode o SQL e recarregue.' : error.message); return; }
     if(localStorage.getItem('sp_active_ws_id')===delTarget.id){ localStorage.removeItem('sp_active_ws_id'); localStorage.removeItem('sp_active_ws_name'); }
     closeDel(); await loadWs();
   });
@@ -154,7 +151,6 @@
     const msg=document.getElementById('msgEmail');
     const { data: { session } } = await supabase.auth.getSession();
     if(!session){ location.href='login.html'; return; }
-    // reautentica
     const { error: e1 } = await supabase.auth.signInWithPassword({ email: session.user.email, password: pass });
     if(e1){ msg.textContent = 'Senha incorreta.'; return; }
     const { error } = await supabase.auth.updateUser({ email: newEmail });
@@ -179,17 +175,23 @@
     const info=document.getElementById('infoW');
     const { data: { session } } = await supabase.auth.getSession();
     if(!session){ location.href='login.html'; return; }
-    const { data, error } = await supabase.from('workspaces').select('id,name,created_at').order('created_at');
-    if(error){ info.textContent='Erro: '+error.message; return; }
-    info.textContent = `Você tem ${data.length}/10 perfis.`;
-    data.forEach(ws=>{
-      const el=document.createElement('div'); el.className='card';
-      el.innerHTML=`<div class="row" style="justify-content:space-between"><strong>$\{ws.name}</strong>
-        <button class="btn">Excluir</button></div>
-        <p class="muted" style="margin:6px 0 0">Criado em $\{new Date(ws.created_at).toLocaleDateString('pt-BR')}</p>`;
-      el.querySelector('.btn').addEventListener('click', ()=> openDel(ws));
-      list.appendChild(el);
-    });
+    try {
+      const { data, error } = await supabase.from('workspaces').select('id,name,created_at').order('created_at');
+      if(error) throw error;
+      info.textContent = `Você tem ${data.length}/10 perfis.`;
+      data.forEach(ws=>{
+        const el=document.createElement('div'); el.className='card';
+        el.innerHTML=`<div class="row" style="justify-content:space-between"><strong>$\{ws.name}</strong>
+          <button class="btn">Excluir</button></div>
+          <p class="muted" style="margin:6px 0 0">Criado em $\{new Date(ws.created_at).toLocaleDateString('pt-BR')}</p>`;
+        el.querySelector('.btn').addEventListener('click', ()=> openDel(ws));
+        list.appendChild(el);
+      });
+    } catch(err) {
+      info.textContent = (err && (err.code==='42P01' || (err.message||'').includes('schema cache'))) ?
+        'A tabela de perfis ainda não existe. Rode o SQL “supabase_workspaces.sql” no Supabase e depois execute: SELECT pg_notify(\'pgrst\', \'reload schema\');' :
+        ('Erro: '+(err.message||err));
+    }
   }
   loadWs();
 </script>
