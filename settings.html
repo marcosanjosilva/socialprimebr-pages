@@ -36,6 +36,8 @@
       font-weight:600; font-size:14px; cursor:pointer; text-decoration:none; display:inline-flex; gap:8px;}
     .btn.secondary{ background:linear-gradient(180deg, rgba(142,123,255,.18), rgba(142,123,255,.06)); }
     .btn.mini{ padding:6px 10px; font-size:12px; border-radius:8px; }
+    .icon-btn{background:transparent; border:1px solid var(--border); width:36px; height:36px; border-radius:10px; display:inline-grid; place-items:center; cursor:pointer;}
+    .icon-btn:hover{border-color:rgba(255,255,255,.16)}
     .wrap{position:relative; z-index:1; padding:26px; max-width:1100px; margin:0 auto;}
     .muted{color:var(--muted)}
     .topline{display:flex; align-items:center; gap:8px; justify-content:center; font-weight:700;}
@@ -64,23 +66,35 @@
     .status-dot{width:8px; height:8px; border-radius:50%; margin-right:6px; display:inline-block}
     .status-dot.on{ background:var(--ok); box-shadow:0 0 8px var(--ok);}
     .status-dot.off{ background:var(--off);}
+    /* Modal */
+    .modal-bg{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:5;
+      background:radial-gradient(600px 400px at 50% 20%, rgba(20,35,70,.6), transparent 60%), rgba(0,0,0,.35); backdrop-filter: blur(4px);}
+    .modal{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid var(--border); border-radius:16px; padding:20px; width:min(520px, 92vw);}
+    .modal .row{display:flex; gap:10px; align-items:center}
+    .modal input{width:100%; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,.04); border:1px solid var(--border); color:var(--fg)}
     /* Side ChatGPT (desktop only) */
-    .sidegpt{position:fixed; top:64px; right:12px; width:380px; height:calc(100vh - 76px);
+    .sidegpt{position:fixed; top:64px; right:12px; width:clamp(420px, 35vw, 560px); height:calc(100vh - 76px);
       border:1px solid var(--border); border-radius:16px; z-index:2; overflow:hidden;
       background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); box-shadow:0 10px 30px rgba(0,0,0,.45); display:none;}
     .sidegpt header{position:sticky; top:0; padding:10px 12px; display:flex; align-items:center; justify-content:space-between;
       background:linear-gradient(180deg, rgba(10,15,23,.86), rgba(10,15,23,.6)); border-bottom:1px solid var(--border);}
     .sidegpt .title{font-weight:800}
-    .sidegpt .frame{width:100%; height:100%; border:0}
-    .sidegpt .fallback{padding:12px; font-size:14px}
-    body.has-side .wrap{ max-width: calc(1100px + 380px); margin-right: 400px; }
+    .sidegpt .frame{width:100%; height:100%; border:0; background:#0b0f17}
+    .sidegpt .fallback{padding:14px; font-size:14px}
+    body.has-side .wrap{ max-width: calc(1100px + 36vw); margin-right: calc(36vw + 32px); }
     @media (min-width: 1200px){ .sidegpt{ display:block; } }
+    /* Switch */
+    .switch{position:relative; width:54px; height:30px}
+    .switch input{opacity:0; width:0; height:0}
+    .slider{position:absolute; inset:0; background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:999px; cursor:pointer; transition:.2s}
+    .slider:before{content:""; position:absolute; height:22px; width:22px; left:4px; top:3px; background:#aab6d3; border-radius:50%; transition:.2s}
+    .switch input:checked + .slider{background:rgba(110,168,255,.22); border-color:rgba(110,168,255,.45)}
+    .switch input:checked + .slider:before{transform:translateX(24px); background:#6ea8ff}
   </style>
   <script type="module">
     addEventListener('mousemove', (e)=>{ document.documentElement.style.setProperty('--mx', e.clientX+'px'); document.documentElement.style.setProperty('--my', e.clientY+'px'); });
-    // habilita classe body.has-side apenas em desktop
-    function toggleSide(){ if(innerWidth>=1200) document.body.classList.add('has-side'); else document.body.classList.remove('has-side'); }
-    addEventListener('resize', toggleSide); addEventListener('DOMContentLoaded', toggleSide);
+    function toggleSideByPref(){ const on = localStorage.getItem('sp_sidegpt_on')!=='0'; if(innerWidth>=1200 && on) document.body.classList.add('has-side'); else document.body.classList.remove('has-side'); }
+    addEventListener('resize', toggleSideByPref); addEventListener('DOMContentLoaded', toggleSideByPref);
   </script>
 
 </head>
@@ -95,24 +109,6 @@
     
   <a class="btn" href="dashboard.html">Voltar ao Dashboard</a>
 </header>
-
-    <aside class="sidegpt" id="sidegpt">
-      <header>
-        <span class="title">ChatGPT</span>
-        <a class="btn mini" target="_blank" rel="noopener" href="https://chat.openai.com">Abrir em nova aba</a>
-      </header>
-      <iframe class="frame" src="https://chat.openai.com" referrerpolicy="no-referrer" sandbox="allow-same-origin allow-scripts allow-forms allow-popups"></iframe>
-      <div class="fallback" id="gptFallback" style="display:none">
-        Não foi possível carregar o ChatGPT aqui (o site bloqueia incorporação). Use o botão acima para abrir em nova aba e fazer login com sua conta.
-      </div>
-      <script>
-        const fr = document.currentScript.previousElementSibling;
-        let loaded = false;
-        fr.addEventListener('load', () => { loaded = true; });
-        setTimeout(() => { if(!loaded) { document.getElementById('gptFallback').style.display='block'; } }, 3000);
-      </script>
-    </aside>
-    
 <main class="wrap">
   <div class="grid-cards">
     <div class="card">
@@ -139,49 +135,32 @@
       </div>
     </div>
     <div class="card">
+      <h3>Painel do ChatGPT</h3>
+      <p class="muted">Mostra um painel lateral no Dashboard (somente Desktop). Se preferir, desative aqui.</p>
+      <label class="switch">
+        <input type="checkbox" id="gptToggle">
+        <span class="slider"></span>
+      </label>
+      <span id="gptMsg" class="muted" style="margin-left:10px"></span>
+    </div>
+    <div class="card">
       <h3>Seus perfis</h3>
       <p class="muted" id="infoW">Carregando…</p>
       <div id="wsList" class="grid-cards"></div>
     </div>
   </div>
 </main>
-<div class="modal-bg" id="delBg">
-  <div class="modal">
-    <h3>Excluir perfil</h3>
-    <p class="error">Atenção: essa ação é permanente e não pode ser desfeita.</p>
-    <p class="muted">Digite o nome do perfil e sua senha para confirmar.</p>
-    <label for="delName">Nome do perfil</label>
-    <input id="delName">
-    <label for="delPass">Sua senha</label>
-    <input id="delPass" type="password">
-    <div class="row" style="margin-top:12px">
-      <button class="btn" id="confirmDel">Excluir</button>
-      <button class="btn secondary" id="cancelDel">Cancelar</button>
-      <span id="delMsg" class="muted"></span>
-    </div>
-  </div>
-</div>
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
   const supabase = createClient("https://mmfqumjckeumidrbysnf.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA");
-  const delBg = document.getElementById('delBg'); let delTarget=null;
-  const openDel = (ws)=>{ delTarget=ws; delBg.style.display='flex'; document.getElementById('delMsg').textContent=''; document.getElementById('delName').value=''; document.getElementById('delPass').value=''; }
-  const closeDel = ()=>{ delBg.style.display='none'; delTarget=null; }
-  document.getElementById('cancelDel').addEventListener('click', closeDel);
-  document.getElementById('confirmDel').addEventListener('click', async ()=>{ 
-    if(!delTarget) return;
-    const name = (document.getElementById('delName').value||'').trim();
-    const pwd = document.getElementById('delPass').value||'';
-    if(name !== delTarget.name){ document.getElementById('delMsg').textContent='Nome não confere.'; return; }
-    const { data: { session } } = await supabase.auth.getSession();
-    if(!session){ location.href='login.html'; return; }
-    const { error: authErr } = await supabase.auth.signInWithPassword({ email: session.user.email, password: pwd });
-    if(authErr){ document.getElementById('delMsg').textContent='Senha incorreta.'; return; }
-    const { error } = await supabase.from('workspaces').delete().eq('id', delTarget.id);
-    if(error){ document.getElementById('delMsg').textContent= (error.code==='42P01' ? 'A tabela de perfis ainda não existe. Rode o SQL e recarregue.' : error.message); return; }
-    if(localStorage.getItem('sp_active_ws_id')===delTarget.id){ localStorage.removeItem('sp_active_ws_id'); localStorage.removeItem('sp_active_ws_name'); }
-    closeDel(); await loadWs();
+  // Toggle ChatGPT
+  const chk = document.getElementById('gptToggle'); 
+  chk.checked = localStorage.getItem('sp_sidegpt_on')!=='0';
+  chk.addEventListener('change', ()=>{ 
+    localStorage.setItem('sp_sidegpt_on', chk.checked ? '1' : '0');
+    document.getElementById('gptMsg').textContent = chk.checked ? 'Ativado. Atualize o Dashboard para ver o painel.' : 'Desativado.';
   });
+  // Email
   document.getElementById('btnEmail').addEventListener('click', async ()=>{ 
     const newEmail=(document.getElementById('emailNew').value||'').trim().toLowerCase();
     const pass=document.getElementById('passEmail').value;
@@ -191,8 +170,9 @@
     const { error: e1 } = await supabase.auth.signInWithPassword({ email: session.user.email, password: pass });
     if(e1){ msg.textContent = 'Senha incorreta.'; return; }
     const { error } = await supabase.auth.updateUser({ email: newEmail });
-    msg.textContent = error ? ('Erro: '+error.message) : 'Verifique o novo e-mail para confirmar a alteração.';
+    msg.textContent = error ? ('Erro: '+error.message) : 'Verifique o novo e-mail para confirmar.';
   });
+  // Password
   document.getElementById('btnPass').addEventListener('click', async ()=>{ 
     const oldp=document.getElementById('passOld').value;
     const newp=document.getElementById('passNew').value;
@@ -205,15 +185,35 @@
     const { error } = await supabase.auth.updateUser({ password: newp });
     msg.textContent = error ? ('Erro: '+error.message) : 'Senha atualizada com sucesso.';
   });
+  // Perfis
   function wsCard(ws){
     const el=document.createElement('div'); el.className='card';
     const row=document.createElement('div'); row.className='row'; row.style.justifyContent='space-between';
     const name=document.createElement('strong'); name.textContent=ws.name;
-    const btn=document.createElement('button'); btn.className='btn'; btn.textContent='Excluir';
-    btn.addEventListener('click', ()=> openDel(ws));
-    row.appendChild(name); row.appendChild(btn);
+    const trash=document.createElement('button'); trash.className='icon-btn'; trash.title='Excluir perfil';
+    trash.innerHTML='🗑️';
+    const confirm=document.createElement('div'); confirm.className='row';
+    confirm.style.display='none'; confirm.style.marginTop='10px';
+    const passInp=document.createElement('input'); passInp.type='password'; passInp.placeholder='Sua senha';
+    const delBtn=document.createElement('button'); delBtn.className='btn'; delBtn.textContent='Confirmar exclusão';
+    const msg=document.createElement('span'); msg.className='muted';
+    confirm.appendChild(passInp); confirm.appendChild(delBtn); confirm.appendChild(msg);
+    trash.addEventListener('click', ()=>{ confirm.style.display = confirm.style.display==='none' ? 'flex' : 'none'; });
+    delBtn.addEventListener('click', async ()=>{ 
+      const pwd=passInp.value||'';
+      const { data: { session } } = await supabase.auth.getSession();
+      if(!session){ location.href='login.html'; return; }
+      const { error: authErr } = await supabase.auth.signInWithPassword({ email: session.user.email, password: pwd });
+      if(authErr){ msg.textContent='Senha incorreta.'; return; }
+      const { error } = await supabase.from('workspaces').delete().eq('id', ws.id);
+      if(error){ msg.textContent = (error.code==='42P01' ? 'Tabela de perfis não existe.' : error.message); return; }
+      if(localStorage.getItem('sp_active_ws_id')===ws.id){ localStorage.removeItem('sp_active_ws_id'); localStorage.removeItem('sp_active_ws_name'); }
+      await loadWs();
+    });
+    const right=document.createElement('div'); right.className='row'; right.appendChild(trash);
+    row.appendChild(name); row.appendChild(right);
     const p=document.createElement('p'); p.className='muted'; p.style.margin='6px 0 0'; p.textContent='Criado em '+new Date(ws.created_at).toLocaleDateString('pt-BR');
-    el.appendChild(row); el.appendChild(p);
+    el.appendChild(row); el.appendChild(p); el.appendChild(confirm);
     return el;
   }
   async function loadWs(){
@@ -228,11 +228,10 @@
       data.forEach(ws=> list.appendChild(wsCard(ws)));
     } catch(err) {
       info.textContent = (err && (err.code==='42P01' || (err.message||'').includes('schema cache'))) ?
-        'A tabela de perfis ainda não existe. Rode o SQL “supabase_workspaces.sql” no Supabase e depois execute: SELECT pg_notify(\\'pgrst\\', \\'reload schema\\');' :
+        'A tabela de perfis ainda não existe. Rode o SQL “supabase_workspaces.sql” no Supabase e depois execute: SELECT pg_notify(\'pgrst\', \'reload schema\');' :
         ('Erro: '+(err.message||err));
     }
   }
-  (async ()=>{ const { data:{session} } = await supabase.auth.getSession(); if(!session){ document.getElementById('sidegpt').style.display='none'; document.body.classList.remove('has-side'); } })();
   loadWs();
 </script>
 

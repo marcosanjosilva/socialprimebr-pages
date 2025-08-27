@@ -36,6 +36,8 @@
       font-weight:600; font-size:14px; cursor:pointer; text-decoration:none; display:inline-flex; gap:8px;}
     .btn.secondary{ background:linear-gradient(180deg, rgba(142,123,255,.18), rgba(142,123,255,.06)); }
     .btn.mini{ padding:6px 10px; font-size:12px; border-radius:8px; }
+    .icon-btn{background:transparent; border:1px solid var(--border); width:36px; height:36px; border-radius:10px; display:inline-grid; place-items:center; cursor:pointer;}
+    .icon-btn:hover{border-color:rgba(255,255,255,.16)}
     .wrap{position:relative; z-index:1; padding:26px; max-width:1100px; margin:0 auto;}
     .muted{color:var(--muted)}
     .topline{display:flex; align-items:center; gap:8px; justify-content:center; font-weight:700;}
@@ -64,23 +66,35 @@
     .status-dot{width:8px; height:8px; border-radius:50%; margin-right:6px; display:inline-block}
     .status-dot.on{ background:var(--ok); box-shadow:0 0 8px var(--ok);}
     .status-dot.off{ background:var(--off);}
+    /* Modal */
+    .modal-bg{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:5;
+      background:radial-gradient(600px 400px at 50% 20%, rgba(20,35,70,.6), transparent 60%), rgba(0,0,0,.35); backdrop-filter: blur(4px);}
+    .modal{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid var(--border); border-radius:16px; padding:20px; width:min(520px, 92vw);}
+    .modal .row{display:flex; gap:10px; align-items:center}
+    .modal input{width:100%; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,.04); border:1px solid var(--border); color:var(--fg)}
     /* Side ChatGPT (desktop only) */
-    .sidegpt{position:fixed; top:64px; right:12px; width:380px; height:calc(100vh - 76px);
+    .sidegpt{position:fixed; top:64px; right:12px; width:clamp(420px, 35vw, 560px); height:calc(100vh - 76px);
       border:1px solid var(--border); border-radius:16px; z-index:2; overflow:hidden;
       background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); box-shadow:0 10px 30px rgba(0,0,0,.45); display:none;}
     .sidegpt header{position:sticky; top:0; padding:10px 12px; display:flex; align-items:center; justify-content:space-between;
       background:linear-gradient(180deg, rgba(10,15,23,.86), rgba(10,15,23,.6)); border-bottom:1px solid var(--border);}
     .sidegpt .title{font-weight:800}
-    .sidegpt .frame{width:100%; height:100%; border:0}
-    .sidegpt .fallback{padding:12px; font-size:14px}
-    body.has-side .wrap{ max-width: calc(1100px + 380px); margin-right: 400px; }
+    .sidegpt .frame{width:100%; height:100%; border:0; background:#0b0f17}
+    .sidegpt .fallback{padding:14px; font-size:14px}
+    body.has-side .wrap{ max-width: calc(1100px + 36vw); margin-right: calc(36vw + 32px); }
     @media (min-width: 1200px){ .sidegpt{ display:block; } }
+    /* Switch */
+    .switch{position:relative; width:54px; height:30px}
+    .switch input{opacity:0; width:0; height:0}
+    .slider{position:absolute; inset:0; background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:999px; cursor:pointer; transition:.2s}
+    .slider:before{content:""; position:absolute; height:22px; width:22px; left:4px; top:3px; background:#aab6d3; border-radius:50%; transition:.2s}
+    .switch input:checked + .slider{background:rgba(110,168,255,.22); border-color:rgba(110,168,255,.45)}
+    .switch input:checked + .slider:before{transform:translateX(24px); background:#6ea8ff}
   </style>
   <script type="module">
     addEventListener('mousemove', (e)=>{ document.documentElement.style.setProperty('--mx', e.clientX+'px'); document.documentElement.style.setProperty('--my', e.clientY+'px'); });
-    // habilita classe body.has-side apenas em desktop
-    function toggleSide(){ if(innerWidth>=1200) document.body.classList.add('has-side'); else document.body.classList.remove('has-side'); }
-    addEventListener('resize', toggleSide); addEventListener('DOMContentLoaded', toggleSide);
+    function toggleSideByPref(){ const on = localStorage.getItem('sp_sidegpt_on')!=='0'; if(innerWidth>=1200 && on) document.body.classList.add('has-side'); else document.body.classList.remove('has-side'); }
+    addEventListener('resize', toggleSideByPref); addEventListener('DOMContentLoaded', toggleSideByPref);
   </script>
 
 </head>
@@ -100,24 +114,7 @@
     <button class="btn" id="logout">Sair</button>
   </div>
 </header>
-
-    <aside class="sidegpt" id="sidegpt">
-      <header>
-        <span class="title">ChatGPT</span>
-        <a class="btn mini" target="_blank" rel="noopener" href="https://chat.openai.com">Abrir em nova aba</a>
-      </header>
-      <iframe class="frame" src="https://chat.openai.com" referrerpolicy="no-referrer" sandbox="allow-same-origin allow-scripts allow-forms allow-popups"></iframe>
-      <div class="fallback" id="gptFallback" style="display:none">
-        Não foi possível carregar o ChatGPT aqui (o site bloqueia incorporação). Use o botão acima para abrir em nova aba e fazer login com sua conta.
-      </div>
-      <script>
-        const fr = document.currentScript.previousElementSibling;
-        let loaded = false;
-        fr.addEventListener('load', () => { loaded = true; });
-        setTimeout(() => { if(!loaded) { document.getElementById('gptFallback').style.display='block'; } }, 3000);
-      </script>
-    </aside>
-    
+<div id="sideMount"></div>
 <main class="wrap">
   <div class="topline"><span class="pill">Redes Sociais</span></div>
   <p class="muted" id="netInfo">Verifique e conecte as redes para este perfil.</p>
@@ -151,6 +148,37 @@
     el.appendChild(row); el.appendChild(actions);
     return el;
   }
+  function mountSide(){
+    const on = localStorage.getItem('sp_sidegpt_on')!=='0';
+    const el = document.getElementById('sideMount');
+    el.innerHTML = '';
+    if(innerWidth>=1200 && on){
+      el.innerHTML = `
+    <aside class="sidegpt" id="sidegpt">
+      <header>
+        <span class="title">ChatGPT</span>
+        <a class="btn mini" target="_blank" rel="noopener" href="https://chat.openai.com">Abrir em nova aba</a>
+      </header>
+      <iframe class="frame" src="https://chat.openai.com" referrerpolicy="no-referrer" sandbox="allow-same-origin allow-scripts allow-forms allow-popups"></iframe>
+      <div class="fallback" id="gptFallback" style="display:none">
+        Não foi possível carregar o ChatGPT dentro da página (site não permite incorporar). Use o botão acima para abrir em nova aba. Você pode desativar este painel nas <a href='settings.html'>Configurações</a>.
+      </div>
+      <script>
+        const fr = document.currentScript.previousElementSibling;
+        let loaded = false;
+        try{ fr.addEventListener('load', () => { loaded = true; }); }catch(e){{}}
+        setTimeout(() => { if(!loaded) { document.getElementById('gptFallback').style.display='block'; } }, 2500);
+        const on = localStorage.getItem('sp_sidegpt_on')!=='0';
+        if(!on) document.getElementById('sidegpt').style.display='none';
+      </script>
+    </aside>
+    `;
+      document.body.classList.add('has-side');
+    }else{
+      document.body.classList.remove('has-side');
+    }
+  }
+  addEventListener('resize', mountSide);
   async function boot(){
     const { data: { session } } = await supabase.auth.getSession();
     if(!session){ location.href='login.html'; return; }
@@ -167,13 +195,12 @@
     }catch(err){
       location.href='workspaces.html?first=1'; return;
     }
+    mountSide();
     const grid=document.getElementById('netGrid'); grid.innerHTML='';
     let states={};
     try{ const { data, error } = await supabase.from('connections').select('network,connected').eq('workspace_id', current.id);
       if(!error && data){ data.forEach(r=> states[r.network]=!!r.connected); }
     }catch(e){}
-    
-    
     NETWORKS.forEach(n=> grid.appendChild(tile(n, !!states[n.key])));
   }
   boot();
