@@ -1,25 +1,193 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Política de Privacidade - SocialPrimeBR</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Política de Privacidade — SocialPrimeBR</title>
+  <meta name="color-scheme" content="dark light">
+  <style>
+    :root{
+      --bg:#0b0f17; --bg-2:#0f1522; --fg:#e6ecff; --muted:#9bb0d6;
+      --brand:#6ea8ff; --brand-2:#8e7bff; --border:rgba(255,255,255,.08);
+      --grid:rgba(255,255,255,.06);
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%}
+    body{
+      margin:0; 
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 800px at 80% -10%, #14223c 0%, transparent 60%),
+                  radial-gradient(1000px 700px at -10% 100%, #1e1240 0%, transparent 60%),
+                  linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+      color:var(--fg);
+    }
+    .grid{
+      position:fixed; inset:0; pointer-events:none; opacity:.35;
+      background-image:linear-gradient(var(--grid) 1px, transparent 1px),
+                       linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size:46px 46px, 46px 46px;
+      mask-image: radial-gradient(ellipse at 50% 30%, rgba(255,255,255,.9) 0%, rgba(255,255,255,.2) 60%, transparent 100%);
+      animation: drift 30s linear infinite;
+      z-index:0;
+    }
+    @keyframes drift{from{background-position:0 0,0 0} to{background-position:200px 200px,200px 200px}}
+    /* Canvas FIXO na viewport (não some ao rolar) */
+    #fx{position:fixed; inset:0; width:100vw; height:100vh; z-index:0; pointer-events:none;}
+    .mouse-glow{
+      position:fixed; inset:0; pointer-events:none; z-index:0;
+      background: radial-gradient(240px 240px at var(--mx,50%) var(--my,50%), rgba(38,144,255,.25), transparent 70%),
+                  radial-gradient(480px 480px at calc(var(--mx,50%) + 8%) calc(var(--my,50%) + 12%), rgba(142,123,255,.18), transparent 70%);
+      transition: background-position .1s linear;
+    }
+    .wrap{position:relative; z-index:1; display:grid; place-items:center; padding: 40px 18px;}
+    .card{
+      width:min(960px,95vw);
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      backdrop-filter: blur(8px);
+      border-radius:20px;
+      padding:32px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.45);
+      margin: 40px auto;
+    }
+    h1{font-size:clamp(28px,4vw,40px); margin:6px 0 12px}
+    h2{font-size:clamp(18px,2.5vw,22px); margin:22px 0 10px}
+    p, li{line-height:1.7; font-size:16px; color:var(--fg); opacity:.92}
+    .muted{color:var(--muted)}
+    .back{
+      display:inline-block; margin-bottom:10px; text-decoration:none; color:#cfe0ff;
+      border:1px solid var(--border); padding:10px 14px; border-radius:10px;
+      background:rgba(110,168,255,.12)
+    }
+    .meta{margin:6px 0 22px; color:var(--muted); font-size:14px}
+    footer{margin-top:26px; color:#8ea3c6; font-size:14px}
+    @media (max-width:520px){ .card{padding:22px} }
+    @media (prefers-reduced-motion: reduce){
+      .grid{animation:none}
+      .mouse-glow{display:none}
+    }
+  </style>
 </head>
 <body>
-    <h1>Política de Privacidade</h1>
-    <p>Última atualização: Agosto/2025</p>
-    <p>A SocialPrimeBR valoriza sua privacidade. Esta Política explica como coletamos, usamos e protegemos suas informações.</p>
-    <h2>Coleta de Informações</h2>
-    <p>Podemos coletar dados fornecidos por você ao criar sua conta, conectar perfis de redes sociais e utilizar nossos serviços.</p>
-    <h2>Uso de Informações</h2>
-    <p>As informações são utilizadas exclusivamente para permitir o agendamento, publicação e gerenciamento de conteúdos em redes sociais.</p>
-    <h2>Compartilhamento</h2>
-    <p>Não vendemos ou compartilhamos seus dados pessoais com terceiros, exceto quando exigido por lei.</p>
-    <h2>Segurança</h2>
-    <p>Adotamos medidas de segurança para proteger seus dados contra acessos não autorizados.</p>
-    <h2>Seus Direitos</h2>
-    <p>Nos termos da LGPD, você pode solicitar a exclusão, alteração ou portabilidade de seus dados.</p>
-    <h2>Contato</h2>
-    <p>Em caso de dúvidas, entre em contato: suporte@socialprimebr.com.br</p>
+  <canvas id="fx" aria-hidden="true"></canvas>
+  <div class="mouse-glow" aria-hidden="true"></div>
+  <div class="grid" aria-hidden="true"></div>
+
+  <main class="wrap">
+    <article class="card" role="region" aria-label="Política de Privacidade">
+      <a class="back" href="index.html">← Voltar para a página inicial</a>
+      <h1>Política de Privacidade</h1>
+      <div class="meta">Última atualização: Agosto/2025</div>
+      
+<h2>1. Quem somos</h2>
+<p>Somos a <strong>SocialPrimeBR</strong>, uma plataforma para gerenciamento e agendamento de publicações em múltiplas redes sociais.</p>
+
+<h2>2. Quais dados coletamos</h2>
+<ul>
+  <li>Dados de cadastro: nome, e-mail.</li>
+  <li>Tokens de acesso das redes sociais conectadas (armazenados com criptografia e usados apenas para publicar/consultar dados conforme sua ação).</li>
+  <li>Conteúdos enviados (imagens, vídeos, legendas) e registros de agendamento.</li>
+  <li>Logs técnicos (data/hora, IP parcialmente anonimizado, erros de API) para segurança e auditoria.</li>
+</ul>
+
+<h2>3. Como usamos seus dados</h2>
+<ul>
+  <li>Executar as funcionalidades de publicar e agendar em cada rede.</li>
+  <li>Operar e melhorar a plataforma, prevenir fraudes e cumprir requisitos das APIs.</li>
+  <li>Atender solicitações e suporte.</li>
+</ul>
+
+<h2>4. Bases legais (LGPD)</h2>
+<p>Tratamos dados com base em <strong>execução de contrato</strong> e <strong>legítimo interesse</strong> para operação do serviço. Você pode revogar autorizações de redes a qualquer momento.</p>
+
+<h2>5. Compartilhamento</h2>
+<p>Não vendemos seus dados. Compartilhamos apenas com provedores essenciais (hospedagem, armazenamento e processamento de mídia) e com as próprias redes sociais, quando você ordenar ações.</p>
+
+<h2>6. Segurança</h2>
+<ul>
+  <li>Criptografia de tokens e de dados em repouso.</li>
+  <li>Controles de acesso e registro de auditoria.</li>
+  <li>Backups e segregação por perfil/usuário.</li>
+</ul>
+
+<h2>7. Seus direitos</h2>
+<p>Você pode solicitar confirmação de tratamento, acesso, correção, portabilidade e exclusão, conforme a LGPD.</p>
+
+<h2>8. Retenção</h2>
+<p>Manteremos dados pelo tempo necessário à prestação do serviço e exigências legais. Conteúdos e tokens podem ser removidos a qualquer momento por você.</p>
+
+<h2>9. Contato do controlador</h2>
+<p class="muted">E-mail: suporte@socialprimebr.com.br</p>
+
+      <footer>© 2025 SocialPrimeBR — Todos os direitos reservados.</footer>
+    </article>
+  </main>
+
+  <script>
+    // Canvas fixo na viewport para não sumir ao rolar
+    (function(){
+      const c = document.getElementById('fx');
+      const ctx = c.getContext('2d', { alpha: true });
+      let w, h, dpr, particles, mouse={x:null,y:null};
+      const cfg = { count: 90, maxSpeed: .32, radius: 2.0, linkDist: 120 };
+
+      function resize(){
+        dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+        w = c.width  = Math.floor(window.innerWidth * dpr);
+        h = c.height = Math.floor(window.innerHeight * dpr);
+      }
+      function rand(a,b){ return a + Math.random()*(b-a) }
+      function init(){
+        particles = Array.from({length: cfg.count}, () => ({ 
+          x: rand(0,w), y: rand(0,h),
+          vx: rand(-cfg.maxSpeed, cfg.maxSpeed),
+          vy: rand(-cfg.maxSpeed, cfg.maxSpeed)
+        }));
+      }
+      function step(){
+        ctx.clearRect(0,0,w,h);
+        for(let i=0;i<particles.length;i++){ 
+          const p=particles[i]; 
+          p.x+=p.vx; p.y+=p.vy;
+          if(p.x<0||p.x>w) p.vx*=-1;
+          if(p.y<0||p.y>h) p.vy*=-1;
+
+          if(mouse.x!==null){
+            const mx = mouse.x * dpr, my = mouse.y * dpr;
+            const dx=mx-p.x, dy=my-p.y;
+            const dist=Math.hypot(dx,dy);
+            if(dist<180*dpr){ p.vx += (dx/(dist||1))*0.006; p.vy += (dy/(dist||1))*0.006; }
+          }
+
+          for(let j=i+1;j<particles.length;j++){ 
+            const q=particles[j];
+            const dx=p.x-q.x, dy=p.y-q.y;
+            const dist=Math.hypot(dx,dy);
+            if(dist<cfg.linkDist*dpr){ 
+              const alpha=1 - dist/(cfg.linkDist*dpr);
+              ctx.strokeStyle='rgba(110,168,255,'+(0.25*alpha)+')';
+              ctx.lineWidth=1*dpr;
+              ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke();
+            }
+          }
+        }
+        for(const p of particles){ 
+          ctx.fillStyle='rgba(142,123,255,.9)';
+          ctx.beginPath(); ctx.arc(p.x,p.y,cfg.radius*dpr,0,Math.PI*2); ctx.fill();
+        }
+        requestAnimationFrame(step);
+      }
+
+      window.addEventListener('resize', ()=>{ resize(); init(); });
+      window.addEventListener('mousemove', (e)=>{ 
+        mouse.x=e.clientX; mouse.y=e.clientY; 
+        document.documentElement.style.setProperty('--mx', e.clientX+'px');
+        document.documentElement.style.setProperty('--my', e.clientY+'px');
+      });
+      window.addEventListener('mouseleave', ()=>{ mouse.x=mouse.y=null; });
+
+      resize(); init(); step();
+    })();
+  </script>
 </body>
 </html>
