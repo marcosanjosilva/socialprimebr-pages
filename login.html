@@ -94,7 +94,7 @@
       }
       input.value = v;
     }
-    function emailValido(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
+    function emailValido(v){ v=(v||'').replace(/\s+/g,'').toLowerCase(); return /^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v); }
     function validaCPF(cpf){
       cpf = soDigitos(cpf);
       if(cpf.length !== 11 || /^([0-9])\1+$/.test(cpf)) return false;
