@@ -72,4 +72,45 @@
     });
   </script>
   <script type="module" src="assets/auth-signup.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const supabase = window.supabase.createClient(SPB.url, SPB.key);
+
+  const form = document.querySelector('form');
+  const emailEl = form.querySelector('input[type="email"]');
+  const passEl  = form.querySelector('input[type="password"]');
+  const btn     = form.querySelector('button, input[type="submit"]');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+
+    const email = emailEl.value.trim();
+    const password = passEl.value;
+
+    // Manda e-mail de confirmação (link vai para suas Redirect URLs)
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options: {
+        emailRedirectTo: 'https://socialprimebr.com.br/login.html'
+      }
+    });
+
+    btn.disabled = false;
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert('Conta criada! Verifique o seu e-mail para confirmar o cadastro.');
+    location.href = 'login.html';
+  });
+
+  // Se já logado, evita recadastro
+  supabase.auth.getSession().then(({ data }) => {
+    if (data.session) location.href = 'index.html';
+  });
+</script>
 </body></html>
