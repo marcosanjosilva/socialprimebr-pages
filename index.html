@@ -1,1 +1,88 @@
-<!doctype html><title>Index</title>
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SocialPrimeBR</title>
+
+  <!-- Favicon do raio -->
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+
+  <!-- CSS principal (mesmo tema das outras páginas) -->
+  <link rel="stylesheet" href="assets/theme.css?v=2025-08-27" />
+
+  <!-- SEO / Social -->
+  <meta name="description" content="Gerencie todas as suas redes sociais em um só lugar. Rápido, fácil e gratuito." />
+</head>
+<body class="has-bg">
+  <!-- BG com estrelas/linhas (funciona mesmo sem JS; JS só anima) -->
+  <canvas id="fx-bg" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <img src="assets/favicon.svg" alt="" class="brand-mark" />
+      <span class="brand-name">SocialPrimeBR</span>
+    </a>
+    <nav class="topnav">
+      <a href="login.html" class="btn ghost">Entrar</a>
+      <a href="cadastro.html" class="btn primary">Criar conta</a>
+    </nav>
+  </header>
+
+  <main class="hero">
+    <div class="hero-copy">
+      <h1>Gerencie todas as suas redes sociais em um só lugar.</h1>
+      <p class="sub">Rápido, fácil e <span class="rainbow">gratuito</span>.</p>
+
+      <div class="cta">
+        <a id="cta-main" class="btn primary lg" href="cadastro.html">Começar agora</a>
+        <a class="btn ghost lg" href="login.html">Já tenho conta</a>
+      </div>
+
+      <ul class="bullets">
+        <li>Publicações e agendamentos multi-rede</li>
+        <li>Calendário visual elegante</li>
+        <li>Tema noturno (sempre ativo)</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer class="sitefoot">
+    <nav class="footnav">
+      <a href="termos-de-uso.html">Termos de Uso</a>
+      <a href="politica-de-privacidade.html">Política de Privacidade</a>
+    </nav>
+    <small>© <span id="y"></span> SocialPrimeBR — Todos os direitos reservados.</small>
+  </footer>
+
+  <!-- Animações de fundo / rastreamento do mouse -->
+  <script src="assets/fx.js" defer></script>
+
+  <!-- Checagem de sessão Supabase sem quebrar o render -->
+  <script type="module">
+    // Não QUEBRA a página se algo falhar.
+    (async () => {
+      try {
+        const { SUPABASE_URL, SUPABASE_ANON_KEY } = await import('./assets/config.js');
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2?bundle');
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data: { session } } = await supabase.auth.getSession();
+
+        // Se já estiver logado, CTA manda pro dashboard
+        if (session) {
+          const cta = document.getElementById('cta-main');
+          if (cta) { cta.href = 'dashboard.html'; cta.textContent = 'Ir para o Dashboard'; }
+        }
+      } catch (err) {
+        console.warn('Index carregou sem Supabase (ok para render):', err);
+      }
+      // Ano no rodapé
+      document.getElementById('y').textContent = new Date().getFullYear();
+    })();
+  </script>
+
+  <noscript>
+    <style>.js-only{display:none}</style>
+  </noscript>
+</body>
+</html>
