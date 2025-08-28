@@ -72,4 +72,33 @@
     });
   </script>
   <script type="module" src="assets/auth-reset.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const supabase = window.supabase.createClient(SPB.url, SPB.key);
+
+  const form = document.querySelector('form');
+  const emailEl = form.querySelector('input[type="email"]');
+  const btn     = form.querySelector('button, input[type="submit"]');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+
+    const email = emailEl.value.trim();
+
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://socialprimebr.com.br/login.html'
+    });
+
+    btn.disabled = false;
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert('Enviamos um link de redefinição de senha para o seu e-mail.');
+  });
+</script>
 </body></html>
