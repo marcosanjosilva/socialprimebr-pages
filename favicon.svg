@@ -4,11 +4,7 @@
       <stop offset="0%" stop-color="#6ea8ff"/>
       <stop offset="100%" stop-color="#8e7bff"/>
     </linearGradient>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2.5" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
   </defs>
   <rect width="64" height="64" rx="14" fill="#0f1522"/>
-  <path d="M36 6L14 36h12l-6 22 30-34H38l4-18z" fill="url(#g)" filter="url(#glow)"/>
+  <path d="M36 6L14 36h12l-6 22 30-34H38l4-18z" fill="url(#g)"/>
 </svg>
