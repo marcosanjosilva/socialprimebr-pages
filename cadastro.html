@@ -46,6 +46,8 @@
     small{color:#9bb0d6}
     .error{ color:#ff9aa2; } .ok{ color:#9be79b; }
   </style>
+
+  <script src="config.js"></script>
 </head><body><canvas id="fx"></canvas><div class="mouse-glow"></div><div class="grid"></div><main class="wrap"><section class="card"><a class="back" href="index.html">← Voltar</a><h1>Criar conta</h1><form id="cadForm" novalidate><div id="status" class="muted" style="margin:6px 0 2px;"></div><div style="display:flex; gap:12px; flex-wrap:wrap"><div style="flex:1"><label for="nome">Nome</label><input id="nome" type="text" placeholder="Seu nome" required oninput="this.value=(this.value||'').replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'\-]/g,'').toLowerCase().replace(/\b([a-zà-öø-ÿ])/g,c=>c.toUpperCase())"></div><div style="flex:1"><label for="sobrenome">Sobrenome</label><input id="sobrenome" type="text" placeholder="Seu sobrenome" required oninput="this.value=(this.value||'').replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'\-]/g,'').toLowerCase().replace(/\b([a-zà-öø-ÿ])/g,c=>c.toUpperCase())"></div></div><label for="email">E-mail</label><input id="email" type="email" placeholder="voce@exemplo.com" required oninput="let v=(this.value||'').replace(/\s+/g,'').toLowerCase(); if(v!==this.value) this.value=v; this.setCustomValidity(''); if(v && !/^[a-z0-9.!#$%&'*/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(v)){ this.setCustomValidity('E-mail com formato inválido.'); }"><label for="doc">CPF ou CNPJ</label><input id="doc" type="text" placeholder="Somente números" required oninput="this.value=this.value.replace(/\D+/g,'').slice(0,14); (function(i){let v=i.value.replace(/\D+/g,''); if(v.length<=11){v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');}else{v=v.replace(/(\d{2})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1/$2').replace(/(\d{4})(\d{1,2})$/,'$1-$2');} i.value=v;})(this)"><small>Digite 11 dígitos para CPF ou 14 para CNPJ. O formato aparece automaticamente.</small><label for="senha">Senha</label><input id="senha" type="password" placeholder="Crie uma senha" minlength="8" required oninput="(function(i){ const ok=/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(i.value); const fb=document.getElementById('senhaFb'); fb.textContent= ok ? 'Senha forte.' : 'Mín. 8 caracteres, com letras (uma maiúscula) e números.'; fb.className= ok ? 'ok':'error'; })(this)"><small id="senhaFb" class="error">Mín. 8 caracteres, com letras (uma maiúscula) e números.</small><div class="cta"><button class="btn" type="submit">Criar conta</button><a class="btn" href="login.html">Já tenho conta</a></div></form></section></main><script type="module">import{createClient}from'https://esm.sh/@supabase/supabase-js@2';const s=createClient('https://mmfqumjckeumidrbysnf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');const d=v=>(v||'').replace(/\D+/g,''),eOk=v=>/^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test((v||'').trim());function vCPF(c){c=d(c);if(c.length!=11||/^([0-9])\1+$/.test(c))return!1;let s1=0;for(let i=0;i<9;i++)s1+=+c[i]*(10-i);let x=11-s1%11;x>9&&(x=0);if(x!=+c[9])return!1;s1=0;for(let i=0;i<10;i++)s1+=+c[i]*(11-i);x=11-s1%11;x>9&&(x=0);return x==+c[10]}function vCNPJ(n){n=d(n);if(n.length!=14||/^([0-9])\1+$/.test(n))return!1;const p1=[5,4,3,2,9,8,7,6,5,4,3,2],p2=[6,5,4,3,2,9,8,7,6,5,4,3,2];let s1=0;for(let i=0;i<12;i++)s1+=+n[i]*p1[i];let x=s1%11;x=x<2?0:11-x;if(x!=+n[12])return!1;s1=0;for(let i=0;i<13;i++)s1+=+n[i]*p2[i];x=s1%11;x=x<2?0:11-x;return x==+n[13]}const vDoc=v=>{const t=d(v);return 11===t.length?vCPF(t):14===t.length?vCNPJ(t):!1};document.getElementById('cadForm').addEventListener('submit',async e=>{e.preventDefault();const sEl=document.getElementById('status'),btn=e.target.querySelector('button[type="submit"]');const msg=(m,c='')=>{sEl.className=c||'muted';sEl.textContent=m};msg('Validando dados...');btn.disabled=!0;const first=document.getElementById('nome').value.trim(),last=document.getElementById('sobrenome').value.trim(),email=(document.getElementById('email').value||'').trim().toLowerCase(),pass=document.getElementById('senha').value,doc=d(document.getElementById('doc').value);if(!eOk(email))return msg('E-mail inválido.','error'),btn.disabled=!1;if(!vDoc(doc))return msg('CPF/CNPJ inválido.','error'),btn.disabled=!1;if(!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/.test(pass))return msg('Senha não atende aos requisitos.','error'),btn.disabled=!1;let out,err;try{({data:out,error:err}=await s.auth.signUp({email,password:pass,options:{data:{first_name:first,last_name:last,doc},emailRedirectTo:location.origin+'/login.html'}}))}catch(e){err=e}if(err)return msg('Erro ao criar conta: '+(err.message||err),'error'),btn.disabled=!1;if(out&&out.user){msg('Criando seu perfil...');try{await s.from('profiles').insert({user_id:out.user.id,first_name:first,last_name:last,email,doc})}catch(_){}msg('Conta criada! Redirecionando...','ok');setTimeout(()=>location.href='login.html',800)}else msg('Enviamos um e-mail de confirmação. Confira sua caixa de entrada.','ok');btn.disabled=!1})</script>
   <script>
     addEventListener('DOMContentLoaded', ()=>{
@@ -71,116 +73,4 @@
       start();
     });
   </script>
-  <script type="module" src="assets/auth-signup.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script>
-  const supabase = window.supabase.createClient(SPB.url, SPB.key);
-
-  const form = document.querySelector('form');
-  const emailEl = form.querySelector('input[type="email"]');
-  const passEl  = form.querySelector('input[type="password"]');
-  const btn     = form.querySelector('button, input[type="submit"]');
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    btn.disabled = true;
-
-    const email = emailEl.value.trim();
-    const password = passEl.value;
-
-    // Manda e-mail de confirmação (link vai para suas Redirect URLs)
-    const { data, error } = await supabase.auth.signUp({
-      email, password,
-      options: {
-        emailRedirectTo: 'https://socialprimebr.com.br/login.html'
-      }
-    });
-
-    btn.disabled = false;
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    alert('Conta criada! Verifique o seu e-mail para confirmar o cadastro.');
-    location.href = 'login.html';
-  });
-
-  // Se já logado, evita recadastro
-  supabase.auth.getSession().then(({ data }) => {
-    if (data.session) location.href = 'index.html';
-  });
-</script>
-<!-- Status (discreto, pode deixar) -->
-<style>
-  #sp-status{margin-top:10px;font:12px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Open Sans','Helvetica Neue',sans-serif;color:#cbd5e1}
-  #sp-status .ok{color:#34d399}
-  #sp-status .err{color:#f87171}
-  #sp-status .info{color:#93c5fd}
-</style>
-<div id="sp-status"></div>
-
-<script type="module">
-  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-  // 🔐  USE O SEU PROJETO ATUAL
-  const SUPABASE_URL = 'https://ojxabliahndxbgnaitqc.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qeGFibGlhaG5keGJnbmFpdHFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMzUzOTUsImV4cCI6MjA3MTkxMTM5NX0.KuVPdhzJrBDvgK1JM0LXIKzB-l7ufh3cterzy3MaZbE';
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const form = document.querySelector('form');            // seu <form> de cadastro
-  const first = document.querySelector('[name="first_name"], #nome, #first_name');
-  const last  = document.querySelector('[name="last_name"], #sobrenome, #last_name');
-  const email = document.querySelector('[type="email"], #email');
-  const doc   = document.querySelector('[name="doc"], #doc, [name="cpf_cnpj"]');
-  const pass  = document.querySelector('[type="password"], #senha, [name="password"]');
-  const btn   = form?.querySelector('button[type="submit"]') || form?.querySelector('button');
-  const status = document.getElementById('sp-status');
-
-  const cap = s => (s||'').toString().trim().replace(/\s+/g,' ')
-                    .replace(/(^|\s)\S/g, m => m.toUpperCase());
-  const onlyDigits = s => (s||'').replace(/\D/g,'');
-  const validEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((s||'').trim());
-  const setStatus = (msg, cls='info') => status.innerHTML = `<span class="${cls}">${msg}</span>`;
-
-  form?.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    try {
-      btn && (btn.disabled = true);
-      setStatus('Criando conta…', 'info');
-
-      const fn = cap(first?.value);
-      const ln = cap(last?.value);
-      const em = (email?.value||'').trim().toLowerCase();
-      const dc = onlyDigits(doc?.value);
-      const pw = (pass?.value||'').trim();
-
-      if(!validEmail(em)) throw new Error('E-mail inválido.');
-      if(!(dc.length===11 || dc.length===14)) throw new Error('CPF/CNPJ inválido.');
-      if(pw.length < 8) throw new Error('A senha deve ter pelo menos 8 caracteres.');
-
-      // Cadastro + metadados
-      const { data, error } = await supabase.auth.signUp({
-        email: em,
-        password: pw,
-        options: {
-          emailRedirectTo: 'https://socialprimebr.com.br/login.html',
-          data: { first_name: fn, last_name: ln, doc: dc }
-        }
-      });
-
-      if (error) throw error;
-
-      // Se confirmação por e-mail estiver ligada (recomendado), não haverá sessão agora.
-      setStatus('Quase lá! Enviamos um link de confirmação para o seu e-mail. Verifique a caixa de entrada e o spam.', 'ok');
-    } catch (err) {
-      setStatus(`Erro ao criar conta: ${(err?.message||err)}`, 'err');
-      console.error('[SignUp Error]', err);
-    } finally {
-      btn && (btn.disabled = false);
-    }
-  });
-</script>
 </body></html>

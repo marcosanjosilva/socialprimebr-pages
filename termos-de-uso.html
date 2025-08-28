@@ -46,6 +46,8 @@
     small{color:#9bb0d6}
     .error{ color:#ff9aa2; } .ok{ color:#9be79b; }
   </style>
+
+  <script src="config.js"></script>
 </head><body><canvas id="fx"></canvas><div class="mouse-glow"></div><div class="grid"></div><main class="wrap"><section class="card"><a class="back" href="index.html">← Voltar</a><h1>Termos de Uso</h1><h2>1. Aceite</h2><p>Ao usar a SocialPrimeBR, você concorda com estes termos.</p><h2>2. Conta</h2><p>Guarde suas credenciais; você é responsável pelo uso da conta.</p><h2>3. Publicações</h2><p>Respeite limites e requisitos de cada rede.</p><h2>4. Responsabilidade</h2><p>Serviço “como está”; sem garantia de disponibilidade contínua.</p><footer>© 2025 SocialPrimeBR</footer></section></main>
   <script>
     addEventListener('DOMContentLoaded', ()=>{
@@ -71,15 +73,4 @@
       start();
     });
   </script>
-
-  <!-- Supabase: inicialização mínima (sem alterar o layout) -->
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-    const SUPABASE_URL = "https://ojxabliahndxbgnaitqc.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qeGFibGlhaG5keGJnbmFpdHFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMzUzOTUsImV4cCI6MjA3MTkxMTM5NX0.KuVPdhzJrBDvgK1JM0LXIKzB-l7ufh3cterzy3MaZbE";
-    window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: true, detectSessionInUrl: true, flowType: "pkce" },
-    });
-  </script>
-
 </body></html>

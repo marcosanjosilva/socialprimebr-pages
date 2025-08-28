@@ -46,6 +46,8 @@
     small{color:#9bb0d6}
     .error{ color:#ff9aa2; } .ok{ color:#9be79b; }
   </style>
+
+  <script src="config.js"></script>
 </head><body><canvas id="fx"></canvas><div class="mouse-glow"></div><div class="grid"></div><main class="wrap"><section class="card"><a class="back" href="index.html">← Voltar</a><h1>Política de Privacidade</h1><p class="muted">Como tratamos dados de cadastro e autenticação para operar a plataforma.</p><h2>1. Dados coletados</h2><ul><li>Nome, sobrenome, e-mail e CPF/CNPJ.</li><li>Metadados técnicos essenciais para segurança/operacional.</li></ul><h2>2. Finalidades</h2><ul><li>Autenticar, autorizar e prestar o serviço de agendamento/publicação.</li><li>Cumprir requisitos das APIs das redes.</li></ul><h2>3. Direitos</h2><p>Peça acesso, correção ou exclusão: suporte@socialprimebr.com.br</p><footer>© 2025 SocialPrimeBR</footer></section></main>
   <script>
     addEventListener('DOMContentLoaded', ()=>{
@@ -71,15 +73,4 @@
       start();
     });
   </script>
-
-  <!-- Supabase: inicialização mínima (sem alterar o layout) -->
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-    const SUPABASE_URL = "https://ojxabliahndxbgnaitqc.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qeGFibGlhaG5keGJnbmFpdHFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMzUzOTUsImV4cCI6MjA3MTkxMTM5NX0.KuVPdhzJrBDvgK1JM0LXIKzB-l7ufh3cterzy3MaZbE";
-    window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: true, detectSessionInUrl: true, flowType: "pkce" },
-    });
-  </script>
-
 </body></html>

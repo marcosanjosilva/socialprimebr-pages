@@ -46,6 +46,8 @@
     small{color:#9bb0d6}
     .error{ color:#ff9aa2; } .ok{ color:#9be79b; }
   </style>
+
+  <script src="config.js"></script>
 </head><body><canvas id="fx"></canvas><div class="mouse-glow"></div><div class="grid"></div><main class="wrap"><section class="card"><a class="back" href="index.html">← Voltar</a><h1>Entrar</h1><form id="loginForm" novalidate><label for="ident">E-mail ou CPF/CNPJ</label><input id="ident" type="text" placeholder="voce@exemplo.com ou 00.000.000/0000-00" required><small id="loginIdentHint" class="error"></small><label for="senha">Senha</label><input id="senha" type="password" placeholder="Sua senha" required><div class="cta"><button class="btn" type="submit">Entrar</button><a class="btn" href="cadastro.html" role="button">Criar conta</a></div><div style="margin-top:8px"><a href="recuperar.html">Esqueceu a senha?</a></div></form></section></main><script type="module">import{createClient}from'https://esm.sh/@supabase/supabase-js@2';const s=createClient('https://mmfqumjckeumidrbysnf.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZnF1bWpja2V1bWlkcmJ5c25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyODg2NzAsImV4cCI6MjA3MTg2NDY3MH0.jlbBLPsz4CqsHqTKTUD5o1xtE8kvAok7x4s3VGaYAAA');const i=document.getElementById('ident'),h=document.getElementById('loginIdentHint');const d=v=>(v||'').replace(/\D+/g,''),eOk=v=>/^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test((v||'').trim());function vCPF(c){c=d(c);if(c.length!=11||/^([0-9])\1+$/.test(c))return!1;let s1=0;for(let i=0;i<9;i++)s1+=+c[i]*(10-i);let x=11-s1%11;x>9&&(x=0);if(x!=+c[9])return!1;s1=0;for(let i=0;i<10;i++)s1+=+c[i]*(11-i);x=11-s1%11;x>9&&(x=0);return x==+c[10]}function vCNPJ(n){n=d(n);if(n.length!=14||/^([0-9])\1+$/.test(n))return!1;const p1=[5,4,3,2,9,8,7,6,5,4,3,2],p2=[6,5,4,3,2,9,8,7,6,5,4,3,2];let s1=0;for(let i=0;i<12;i++)s1+=+n[i]*p1[i];let x=s1%11;x=x<2?0:11-x;if(x!=+n[12])return!1;s1=0;for(let i=0;i<13;i++)s1+=+n[i]*p2[i];x=s1%11;x=x<2?0:11-x;return x==+n[13]}const vDoc=v=>{const t=d(v);return 11===t.length?vCPF(t):14===t.length?vCNPJ(t):!1};i.addEventListener('input',()=>{const v=i.value;if(v.includes('@')){const ok=eOk(v);i.setCustomValidity(ok?'':'E-mail inválido');h.textContent=ok?'':'Informe um e-mail válido.';return}h.textContent='';i.setCustomValidity('')});document.getElementById('loginForm').addEventListener('submit',async e=>{e.preventDefault();const p=document.getElementById('senha').value;let id=i.value.trim(),email=null;if(id.includes('@')){if(!eOk(id)){h.textContent='Informe um e-mail válido.';return}email=id.toLowerCase()}else{const doc=d(id);if(!vDoc(doc)){h.textContent='CPF/CNPJ inválido.';return}const{data,error}=await s.rpc('get_email_by_doc',{p_doc:doc});if(error||!data){h.textContent='Documento não encontrado.';return}email=data}const{error}=await s.auth.signInWithPassword({email,password:p});if(error){alert('Erro ao entrar: '+error.message);return}location.href='dashboard.html'})</script>
   <script>
     addEventListener('DOMContentLoaded', ()=>{
@@ -71,43 +73,4 @@
       start();
     });
   </script>
-  <script type="module" src="assets/auth-login.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script>
-  const supabase = window.supabase.createClient(SPB.url, SPB.key);
-
-  // Substitua pelos IDs/names reais dos seus campos do formulário de login
-  const form = document.querySelector('form');
-  const emailEl = form.querySelector('input[type="email"]');
-  const passEl  = form.querySelector('input[type="password"]');
-  const btn     = form.querySelector('button, input[type="submit"]');
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    btn.disabled = true;
-
-    const email = emailEl.value.trim();
-    const password = passEl.value;
-
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    btn.disabled = false;
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    // OK → usuário logado
-    // Redirecione para a página inicial/logada (ajuste se quiser ir a outra)
-    location.href = 'index.html';
-  });
-
-  // Caso já esteja logado, pode redirecionar automaticamente
-  supabase.auth.getSession().then(({ data }) => {
-    if (data.session) {
-      location.href = 'index.html';
-    }
-  });
-</script>
 </body></html>
