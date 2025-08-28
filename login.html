@@ -72,4 +72,42 @@
     });
   </script>
   <script type="module" src="assets/auth-login.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const supabase = window.supabase.createClient(SPB.url, SPB.key);
+
+  // Substitua pelos IDs/names reais dos seus campos do formulário de login
+  const form = document.querySelector('form');
+  const emailEl = form.querySelector('input[type="email"]');
+  const passEl  = form.querySelector('input[type="password"]');
+  const btn     = form.querySelector('button, input[type="submit"]');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+
+    const email = emailEl.value.trim();
+    const password = passEl.value;
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    btn.disabled = false;
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    // OK → usuário logado
+    // Redirecione para a página inicial/logada (ajuste se quiser ir a outra)
+    location.href = 'index.html';
+  });
+
+  // Caso já esteja logado, pode redirecionar automaticamente
+  supabase.auth.getSession().then(({ data }) => {
+    if (data.session) {
+      location.href = 'index.html';
+    }
+  });
+</script>
 </body></html>
