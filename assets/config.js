@@ -1,0 +1,1 @@
+export const SUPABASE_URL='https://ojxabliahndxbgnaitqc.supabase.co';export const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qeGFibGlhaG5keGJnbmFpdHFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMzUzOTUsImV4cCI6MjA3MTkxMTM5NX0.KuVPdhzJrBDvgK1JM0LXIKzB-l7ufh3cterzy3MaZbE';
