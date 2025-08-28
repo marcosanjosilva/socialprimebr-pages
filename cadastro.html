@@ -113,4 +113,74 @@
     if (data.session) location.href = 'index.html';
   });
 </script>
+<!-- Status (discreto, pode deixar) -->
+<style>
+  #sp-status{margin-top:10px;font:12px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Open Sans','Helvetica Neue',sans-serif;color:#cbd5e1}
+  #sp-status .ok{color:#34d399}
+  #sp-status .err{color:#f87171}
+  #sp-status .info{color:#93c5fd}
+</style>
+<div id="sp-status"></div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  // 🔐  USE O SEU PROJETO ATUAL
+  const SUPABASE_URL = 'https://ojxabliahndxbgnaitqc.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qeGFibGlhaG5keGJnbmFpdHFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMzUzOTUsImV4cCI6MjA3MTkxMTM5NX0.KuVPdhzJrBDvgK1JM0LXIKzB-l7ufh3cterzy3MaZbE';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const form = document.querySelector('form');            // seu <form> de cadastro
+  const first = document.querySelector('[name="first_name"], #nome, #first_name');
+  const last  = document.querySelector('[name="last_name"], #sobrenome, #last_name');
+  const email = document.querySelector('[type="email"], #email');
+  const doc   = document.querySelector('[name="doc"], #doc, [name="cpf_cnpj"]');
+  const pass  = document.querySelector('[type="password"], #senha, [name="password"]');
+  const btn   = form?.querySelector('button[type="submit"]') || form?.querySelector('button');
+  const status = document.getElementById('sp-status');
+
+  const cap = s => (s||'').toString().trim().replace(/\s+/g,' ')
+                    .replace(/(^|\s)\S/g, m => m.toUpperCase());
+  const onlyDigits = s => (s||'').replace(/\D/g,'');
+  const validEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((s||'').trim());
+  const setStatus = (msg, cls='info') => status.innerHTML = `<span class="${cls}">${msg}</span>`;
+
+  form?.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    try {
+      btn && (btn.disabled = true);
+      setStatus('Criando conta…', 'info');
+
+      const fn = cap(first?.value);
+      const ln = cap(last?.value);
+      const em = (email?.value||'').trim().toLowerCase();
+      const dc = onlyDigits(doc?.value);
+      const pw = (pass?.value||'').trim();
+
+      if(!validEmail(em)) throw new Error('E-mail inválido.');
+      if(!(dc.length===11 || dc.length===14)) throw new Error('CPF/CNPJ inválido.');
+      if(pw.length < 8) throw new Error('A senha deve ter pelo menos 8 caracteres.');
+
+      // Cadastro + metadados
+      const { data, error } = await supabase.auth.signUp({
+        email: em,
+        password: pw,
+        options: {
+          emailRedirectTo: 'https://socialprimebr.com.br/login.html',
+          data: { first_name: fn, last_name: ln, doc: dc }
+        }
+      });
+
+      if (error) throw error;
+
+      // Se confirmação por e-mail estiver ligada (recomendado), não haverá sessão agora.
+      setStatus('Quase lá! Enviamos um link de confirmação para o seu e-mail. Verifique a caixa de entrada e o spam.', 'ok');
+    } catch (err) {
+      setStatus(`Erro ao criar conta: ${(err?.message||err)}`, 'err');
+      console.error('[SignUp Error]', err);
+    } finally {
+      btn && (btn.disabled = false);
+    }
+  });
+</script>
 </body></html>
